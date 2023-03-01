@@ -738,10 +738,10 @@ def schedule_appoint(request):
             a = request.POST.get("comp_id")
             if a is not None:
                 pat = patient.objects.get(Email_ID = a)
-                # print(pat)
+                print(pat)
                 # form = schedule_appoint()
                 if pat is not None:
-                    return render(request,'../templates/scheduler.html',{'whereto':'scheduler','form':schedule_appoint,'user':user})
+                    return render(request,'../templates/scheduler.html',{'whereto':'scheduler','form':schedule_app,'user':user,'pat':pat})
         return redirect('/')
 
 def scheduler(request):
@@ -749,11 +749,13 @@ def scheduler(request):
         user = front_desk.objects.get(Email_ID = (request.session['user']))
         if user is not None:
             a = request.POST.get("checker")
+            print(a)
             if a is not None:
                 pat = patient.objects.get(Email_ID = a)
-                doc = request.POST.get("doc")
-                date = request.POST.get("date")
+                doc = request.POST.get("Physician_Email")
+                date = request.POST.get("Start")
                 print(type(date))
+                print(doc,date)
                 return render(request,'../templates/scheduler.html',{'whereto':'scheduler','pat':pat,'user':user})
         return redirect('/')
 

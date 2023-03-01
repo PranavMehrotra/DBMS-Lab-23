@@ -1,60 +1,160 @@
-{% load widget_tweaks %}
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css"
-    integrity="sha384-WskhaSGFgHYWDcbwN70/dfYBj47jz9qbsMId/iRN3ewGhXQFZCSftd1LZCfmhktB" crossorigin="anonymous">
-  <title>Admit Patient Registration</title>
+{% extends 'doctor_navbar.html' %}
+  {% load static %}
+  {% load widget_tweaks %}
+  {% block title %} Hospital Management System {% endblock %}
+  {% block css %}
   <style>
     body {
-      background: #0E1A35;
-      padding-top: 2vh !important;
-      padding-bottom: 2vh !important;
-
+      background-color: #1f2739;
     }
   </style>
-</head>
+  {% endblock %}
+  {% block body %}
 
-<body>
+<style>
+    .btn-issue{
+        background-color: rgb(1, 144, 1);
+    }
+
+    .btn-reserve{
+        background-color: rgb(0, 153, 255)
+    }
+</style>
+
+<style>
+    h1 {
+      font-size: 3em;
+      font-weight: 300;
+      line-height: 1em;
+      text-align: center;
+      padding: 3rem;
+      color: #4dc3fa;
+    }
+  
+    h3 {
+      font-size: 1em;
+      font-weight: 300;
+      text-align: center;
+      display: block;
+      line-height: 1em;
+      padding-bottom: 2em;
+      color: #fb667a;
+    }
+  
+    .container th h1{
+      font-weight: bold;
+      font-size: 1em;
+      text-align: center;
+      padding: 0rem;
+      color: #185875;
+    }
+  
+    .container td {
+      font-weight: normal;
+      font-size: 1em;
+      -webkit-box-shadow: 0 2px 2px -2px #0e1119;
+      -moz-box-shadow: 0 2px 2px -2px #0e1119;
+      box-shadow: 0 2px 2px -2px #0e1119;
+    }
+  
+    .container {
+      text-align: center;
+      overflow: hidden;
+      width: 100%;
+      margin: 0 auto;
+      display: table;
+      padding: 3rem 0 8em 0;
+    }
+  
+    .container td,
+    .container th {
+      padding-bottom: 2%;
+      padding-top: 2%;
+      padding-left: 2%;
+    }
+  
+    /* Background-color of the odd rows */
+    .container tr:nth-child(odd) {
+      background-color: #323c50;
+    }
+  
+    /* Background-color of the even rows */
+    .container tr:nth-child(even) {
+      background-color: #2c3446;
+    }
+  
+    .container th {
+      background-color: #1f2739;
+    }
+  
+    .container tr:hover {
+      background-color: #464a52;
+      -webkit-box-shadow: 0 6px 6px -6px #0e1119;
+      -moz-box-shadow: 0 6px 6px -6px #0e1119;
+      box-shadow: 0 6px 6px -6px #0e1119;
+    }
+  
+    .container td:hover {
+      /* background-color: #8ac8bf; */
+      /* color: #185875; */
+      font-weight: bold;
+  
+      /* box-shadow: #78afa7 -1px 1px, #78afa7 -2px 2px, #78afa7 -3px 3px,
+        #78afa7 -4px 4px, #78afa7 -5px 5px, #78afa7 -6px 6px;
+      transform: translate3d(6px, -6px, 0); */
+  
+      transition-delay: 0s;
+      transition-duration: 0.4s;
+      transition-property: all;
+      transition-timing-function: line;
+    }
+  
+    .container td{
+      color: rgb(226, 223, 223);
+    }
+
+    .page-title{
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+  
+    @media (max-width: 800px) {
+      .container td:nth-child(4),
+      .container th:nth-child(4) {
+        display: none;
+      }
+    }
+  </style>
 
   <section>
     <div class="container">
-      <div class="row" style="width:100vw;position:relative;left:-13vw;">
-        <div class="col-md-6 mx-auto">
-          <div class="card" style="border:5px solid white;">
-            <div class="card-header text-white" style="background-color:#0E1A35">
-              <h2 style="margin-left:12vw">Admit Patient Registration </h2>
-            </div>
-            <div class="card-body">
-              
-              <form action="{% url 'patient_admit' %}" enctype="multipart/form-data" method="POST">
-                {% csrf_token %}
-                {% for field in form.visible_fields %}
-                <div class="form-group">
-                  {{ field.label_tag }}
-                  {% render_field field class="form-control" %}
-                  {% for error in field.errors %}
-                  <span style="color:red">{{ error }}</span>
-                  {% endfor %}
-                  {% endfor %}
-                  <input type="submit" value="Register" class="btn btn-block btn-primary my-4">
-                  <a href="/schedule_appointment/" style="color:black; position:relative;left:20vw;font-size:1.5em;">Go
-                    Back</a>
-                </div>
-              </form>
+        <div class="row text-center">
+          <div class="col-md-6 mx-auto">
+            <div class="card" style="border:5px solid white;">
+              <div class="card-header text-white" style="background-color:#0E1A35">
+                <h2 style="text-center"> Schedule Appointment</h2>
+              </div>
+              <div class="card-body">
+                
+                <form action="{% url whereto %}" enctype="multipart/form-data" method="POST">
+                  {% csrf_token %}
+                  {% for field in form.visible_fields %}
+                  <div class="form-group text-start my-1">
+                    {{ field.label_tag }}
+                    {% render_field field class="form-control" %}
+                    {% for error in field.errors %}
+                    <span style="color:red">{{ error }}</span>
+                    {% endfor %}
+                    {% endfor %}
+                    <button type="submit" value={{pat.Email_ID}} name="checker" class="btn btn-block btn-primary my-4">Check Slots</button>
+                    </div>
+                </form>
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
-   
-    </div>
+     
+      </div>
   </section>
-
-</body>
-
+{% endblock %}
 </html>

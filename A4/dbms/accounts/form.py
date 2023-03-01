@@ -218,9 +218,9 @@ class patient_register(forms.ModelForm):
     def save(self):
         return self.cleaned_data.get('Email_ID'),self.cleaned_data.get('SSN'),self.cleaned_data.get('First_Name'),self.cleaned_data.get('Last_Name'),self.cleaned_data.get('Address'),self.cleaned_data.get('Insurance_ID'),self.cleaned_data.get('Phone'),self.cleaned_data.get('Age'),self.cleaned_data.get('Blood_Group'),0
 
-class schedule_appoint(forms.ModelForm):
-    Physician_Email = forms.ChoiceField(choices=[])
-    Start = forms.DateTimeField(widget=DateTimeInput(attrs={'type': 'datetime-local'}))
+class schedule_app(forms.ModelForm):
+    Physician_Email = forms.ChoiceField(choices=[],label="Physician Name")
+    Start = forms.DateField(widget=DateInput(attrs={'type': 'date'}),label="Appointment Date")
 
 
     def get_pcp(self):
@@ -229,7 +229,6 @@ class schedule_appoint(forms.ModelForm):
         patient_list=[]
         doct = physician.objects.all()
         for x in doct:
-            # print(x.Email_ID) 
             patient_list.append((x.Email_ID,x.First_Name+" "+x.Last_Name))
         return patient_list
     def __init__(self, *args, **kwargs):
