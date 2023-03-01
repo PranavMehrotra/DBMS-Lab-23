@@ -281,7 +281,7 @@
               <div class="row" style="width:70vw">
                 <div class="col-md-12 mx-auto">
                   <div class="card" style="border:5px solid white;">
-                    <div class="card-header text-white" style="background-color:#0E1A35;padding:2px;" >
+                    <div class="card-header text-white" style="background-color:#0E1A35;height:5vh;padding:2px;" >
                       <button class="fr" onclick="togglede(event)"><h2 style=" color:white; font-size:0.9em">Active Data Entry operators</h2></button>
                     </div>
                     <div class="card-body" style="border:2px solid #0e1a35;border-radius:5px;font-size:0.9em" id="de">
@@ -321,7 +321,7 @@
             <div class="row" style="width:70vw">
               <div class="col-md-12 mx-auto">
                 <div class="card" style="border:5px solid white;">
-                  <div class="card-header text-white" style="background-color:#0E1A35;padding:2px;" >
+                  <div class="card-header text-white" style="background-color:#0E1A35;height:5vh;padding:2px;" >
                     <button class="fr" onclick="toggleph(event)"><h2 style=" color:white; font-size:0.9em">Active Physicians</h2></button>
                   </div>
                   <div class="card-body" style="border:2px solid #0e1a35;border-radius:5px;font-size:0.9em" id="ph">
@@ -414,11 +414,11 @@
 								<section id="banner">
 									<div class="content">
 										<header>
+                      <p>Employee ID: {{user.Employee_ID}}</p>
+                      <p>Name: {{user.First_Name}} {{user.Last_Name}}</p>
                       <p>Email-id: {{user.Email_ID}}</p>
-											<p>Name: {{user.First_Name}} {{user.Last_Name}}</p>
 											<p>Position: {{user.Position}}</p>
-											<p>Employee ID: {{user.Employee_ID}}</p>
-											<p>Position: {{user.Position}}</p>
+											<p>Department: {{user.Department}}</p>
 										</header>
 										</div>
 								</section>
@@ -434,9 +434,11 @@
                 <h2 style="border:none;font-size:1.5em;padding-left:2vw;">IIT Kharagpur</h2>
                 </header>
                 <ul class="item">
-                  
+                  <li><a href="{%url 'doctor_pat_record'%}">Patients' Records</a></li>
+                  <!-- <li><a href="{%url 'record_treatment' %}">Record Treatment</a></li> -->
                   <li><a href="{% url 'logout'%}">Logout</a></li>
-                  </ul>
+
+                </ul>
               </nav>
           </div>
         </div>
@@ -465,8 +467,11 @@
                                         </button>
 											<ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="dropdownMenuButton2" style="padding-right:0.5vw;">
 											  
-											  {% comment %} <li><a class="dropdown-item" href="{% url 'apply_company' %}">Apply</a></li> {% endcomment %}
 											  <li><a class="dropdown-item" href="{% url 'patient_reg'%}">Register Patient</a></li>
+                        <li><hr class="dropdown-divider"></li>
+											  <li><a class="dropdown-item" href="{% url 'handle_admit'%}">Admit\Discharge</a></li>
+                        <li><hr class="dropdown-divider"></li>
+											  <li><a class="dropdown-item" href="{% url 'schedule_appoint'%}">Schedule a Appointment</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item" href="{% url 'logout' %}">Logout</a></li>
 											</ul>
@@ -490,7 +495,7 @@
                 <section>
                   <a class="dropdown-item" href="{% url 'patient_reg'%}">Register Patient</a>
                   <a class="dropdown-item" href="{% url 'handle_admit'%}">Admit\Discharge</a>
-                        
+                  <a class="dropdown-item" href="{% url 'schedule_appoint'%}">Schedule a Appointment</a>
                 </section>
                	</div>
 					</div>
@@ -508,6 +513,7 @@
                 <ul class="item">
                   {% comment %}  {% endcomment %}
                   <li><a href="{% url 'patient_reg'%}">Register Patient</a></li>
+                  <li><a href="{% url 'schedule_appoint'%}">Schedule a Appointment</a></li>
                   <li><a href="{% url 'logout'%}">Logout</a></li>
                   </ul>
               </nav>
