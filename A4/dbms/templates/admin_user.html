@@ -28,39 +28,33 @@
               <h2 style="margin-left:30vw">Active Patients</h2>
             </div>
             <div class="card-body">
-              <ol>
-                {% for patient in pat %}
-                <div class="form-group">
-                  <li style="list-style-type:none">
-                    
-                    <form action="{% url whereto %}" enctype="multipart/form-data" method="POST" id="apply_comp">
-                      {% csrf_token %}
-                    </form>
+              <ol> 
+                <form action="{% url whereto %}" enctype="multipart/form-data" method="POST" id="apply_comp">
+                  {% csrf_token %}
+                </form>
                     <div class="card-body" style="display:flex;justify-content: space-between; " >
-                      <span style="width:20vw">
-                        Patient's name: {{patient.First_Name}} {{patient.Last_Name}} <br>
-                        Patient's Email_ID: {{patient.Email_ID}} <br>
-                      </span>
-                      {%if patient.Status == 1%}
-                      <button type="submit" name="comp_id" value={{patient.Email_ID}} form="apply_comp"
-                        class="btn btn-block btn-secondary ml-5" style="width:20vw" disabled>Admitted</button>
-                        <button type="submit" name="dis_id" value={{patient.Email_ID}} form="apply_comp"
-                        class="btn btn-block btn-success ml-5" style="width:20vw"
-                        >Discharge</button>
-                        {%else%}
-                      <button type="submit" name="comp_id" value={{patient.Email_ID}} form="apply_comp"
-                        class="btn btn-block btn-success ml-5" style="width:20vw"
-                        >Admit</button>
-                        <button type="submit" name="dis_id" value={{patient.Email_ID}} form="apply_comp"
-                        class="btn btn-block btn-secondary ml-5" style="width:20vw" disabled>Discharge</button>
-                        {% endif %}
                      
+                      <div style="width:35vw; display:flex; justify-content: space-between;">
+                      <label>Enter Patient's Email ID:</label>
+                      <span style="width:22vw">
+                        <input type="text" id="hello" style="width:100%; height:35px;border-radius:3px;padding:5px; background-color:#E9ECEF;border:2px solid #d2d7db;color:#5b5b5b">
+                      </span>
                     </div>
-                  </li>
+                    
+                    <div style="width:25vw; display:flex; justify-content: space-between;">
+                      <button type="submit" name="comp_id"  form="apply_comp"
+                        class="btn btn-block btn-success ml-5" style="width:10vw;background-color:#0E1A35;height:5vh;margin:0;padding:2px" onclick="admit_patient(event)"
+                        id="admit">Admit</button>
+                      <button type="submit" name="dis_id"  form="apply_comp"
+                        class="btn btn-block btn-success ml-5" style="width:10vw;background-color:#0E1A35;height:5vh;margin:0;padding:2px" onclick="discharge_pat(event)" 
+                        id='discharge'>Discharge</button>
+                      <button type="submit" name="info"  form="apply_comp"
+                        class="btn btn-block btn-success ml-5" style="width:10vw;background-color:#0E1A35;height:5vh;margin:0;padding:2px" onclick="info_pat(event)" 
+                        id='discharge'>Patient Info</button>
+                    </div>
+                    </div>
                 </div>
-                {% empty %}
-                <div> No patient available </div>
-                {% endfor %}
+
               </ol>
               <a href="/"
                 style="color:black; position:relative;left:38vw;font-size:1.5em;">Go Back</a>
@@ -72,12 +66,67 @@
     </div>
     </div>
   </section>
-  <script>
-    function giveAlert(event) {
-      if (!window.confirm("Are you sure you want to delete the user?\n Once deleted the user will lose his access to the system.")) {
-        event.preventDefault();
-      }
-    }
-  </script>
+
+  {% block scripts %}
+    <script>
+        function admit_patient(event) {
+          document.getElementById("admit").value = document.getElementById("hello").value;
+          x = document.getElementById("admit").value;
+          
+          {% for patient in pat %}
+          if('{{patient.Email_ID}}' == x){
+            if('{{patient.Status}}'==1){
+              if(!alert('Patient Already Admitted!')){window.location.reload();}
+            }
+            else{
+              return;
+            }
+          }
+          
+          {%endfor%}
+          if(!alert('Patient Doesn\'t Exist!')){window.location.reload();}
+        }
+
+        function discharge_pat(event) {
+          x =  document.getElementById("hello").value;
+          
+          {% for patient in pat %}
+          if('{{patient.Email_ID}}' == x){
+
+            if('{{patient.Status}}'==0){
+              alert('Patient is currently not admitted!');
+              window.location.reload();
+              return;
+            }
+            else if('{{patient.Status}}'==2){
+              alert('Patient is currently not admitted!');
+              window.location.reload();
+              return;
+            }
+            else{
+              document.getElementById("discharge").value = x;
+              return;
+            }
+          }
+          {%endfor%}
+          if(!alert('Patient Doesn\'t Exist!')){window.location.reload();}
+          
+        }
+        function info_pat(event) {
+          x =  document.getElementById("hello").value;
+          
+          {% for patient in pat %}
+          if('{{patient.Email_ID}}' == x){
+              document.getElementById("info").value = x;
+              alert("hello")
+              return;
+            }
+
+          {%endfor%}
+          if(!alert('Patient Doesn\'t Exist!')){window.location.reload();}
+          
+        }
+    </script>
+{% endblock %}
 </body>
 </html>
