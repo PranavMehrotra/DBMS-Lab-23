@@ -5,7 +5,7 @@ from .models import *
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.hashers import make_password, check_password
-from django.forms.widgets import DateTimeInput
+from django.forms.widgets import DateTimeInput,DateInput
 
 BLOOD_GROUP_CHOICES = [
     ('A+', 'A+'),
@@ -217,123 +217,29 @@ class patient_register(forms.ModelForm):
     @transaction.atomic  #if an exception occurs changes are not saved
     def save(self):
         return self.cleaned_data.get('Email_ID'),self.cleaned_data.get('SSN'),self.cleaned_data.get('First_Name'),self.cleaned_data.get('Last_Name'),self.cleaned_data.get('Address'),self.cleaned_data.get('Insurance_ID'),self.cleaned_data.get('Phone'),self.cleaned_data.get('Age'),self.cleaned_data.get('Blood_Group'),0
-        
-        # Phone = self.cleaned_data.get('Phone')
-        # if len(Phone)==10 and Phone.isdigit():
-        #     return self.cleaned_data.get('SSN'),self.cleaned_data.get('First_Name'),self.cleaned_data.get('Address'),self.cleaned_data.get('Phone'),self.cleaned_data.get('Insurance_ID'),self.cleaned_data.get('PCP'),0
-        # else:   
-            # raise forms.ValidationError(_("Invalid Number Format"),code='invalid_format')
 
-# class AlumniSignUpForm(UserCreationForm):
-#     first_name = forms.CharField(required=True) 
-#     last_name = forms.CharField(required=True)
-#     department = forms.ChoiceField(choices=Dep_choices)
-#     roll_number =forms.CharField(required=True)
-#     year_of_graduation = forms.IntegerField(required=True,min_value=1951,max_value=2021)
+class schedule_appoint(forms.ModelForm):
+    Physician_Email = forms.ChoiceField(choices=[])
+    Start = forms.DateTimeField(widget=DateTimeInput(attrs={'type': 'datetime-local'}))
 
-#     class Meta(UserCreationForm.Meta):
-#         model = User
-#         fields = ['email','contact_number','roll_number','first_name','last_name','department','year_of_graduation']
+
+    def get_pcp(self):
+        # Retrieve the choices from the database or some other source
+        # and return them as a list of tuples in the format (value, label)
+        patient_list=[]
+        doct = physician.objects.all()
+        for x in doct:
+            # print(x.Email_ID) 
+            patient_list.append((x.Email_ID,x.First_Name+" "+x.Last_Name))
+        return patient_list
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['Physician_Email'].choices = self.get_pcp()
+
+    class Meta():
+        model = appointment
+        fields = ['Physician_Email','Start']
     
-#     @transaction.atomic#if an exception occurs changes are not saved
-#     def save(self):
-#         user = super().save(commit=False)#before saving save the details
-#         user.is_alumni = True
-#         user.first_name = self.cleaned_data.get('first_name')
-#         user.last_name = self.cleaned_data.get('last_name')
-#         user.contact_number=self.cleaned_data.get('contact_number')
-#         user.email = self.cleaned_data.get('email')
-#         user.username = user.email
-#         user.save()
-#         alumni = Alumni.objects.create(user=user)#instance created
-#         alumni.department=self.cleaned_data.get('department')
-#         alumni.roll_number=self.cleaned_data.get('roll_number').upper()
-#         alumni.year_of_graduation=int(self.cleaned_data.get('year_of_graduation'))
-#         alumni.save()
-#         return user
-
-# class AlumniEditForm(forms.ModelForm):
-#     email = forms.EmailField(required=True)
-#     contact_number = forms.CharField(max_length=12,required=True)
-#     roll_number =forms.CharField(required=True)
-#     first_name = forms.CharField(required=True) 
-#     last_name = forms.CharField(required=True)
-#     department = forms.CharField(required=True)
-#     year_of_graduation = forms.IntegerField(required=True,min_value=1951,max_value=2021)
-
-#     class Meta():
-#         model = Alumni
-#         fields = ['email','contact_number','first_name','last_name','department','year_of_graduation']
-
-#     @transaction.atomic  #if an exception occurs changes are not saved
-#     def save(self):
-#         return self.cleaned_data.get('contact_number')
-
-# class CompanySignUpForm(UserCreationForm):
-#     email = forms.EmailField(label="Email (Email will be your username for Logging in the portal)")
-#     contact_number = forms.CharField(max_length=12)
-#     # first_name = forms.CharField(required=True) 
-#     # last_name = forms.CharField(required=True)
-#     profile = forms.CharField(required=True)
-#     company_name =forms.CharField(required=True)
-#     address = forms.CharField(required=True)
-#     profile = forms.ChoiceField(choices=Profiles_choices)
-#     # overview = forms.Textarea(attrs={"cols": "35", "rows": "10"})
-#     # work_environ = forms.Textarea(attrs={"cols": "35", "rows": "10"})
-#     # job_desc = forms.Textarea(attrs={"cols": "35", "rows": "10"})
-#     # other_details = forms.Textarea(attrs={"cols": "35", "rows": "10"})
-#     verify_doc = forms.FileField(label="Upload your Verification Documents(Single PDF)",required=False)
-
-#     class Meta(UserCreationForm.Meta):
-#         model = User
-#         fields = ['email','contact_number','company_name','address','profile'] 
-    
-#     @transaction.atomic#if an exception occurs changes are not saved
-#     def save(self):
-#         user = super().save(commit=False)#before saving save the details
-#         user.is_company = True
-#         user.contact_number=self.cleaned_data.get('contact_number')
-#         user.email = self.cleaned_data.get('email')
-#         user.username = user.email
-#         user.save()
-#         company = Company.objects.create(user=user)#instance created
-#         company.profile=self.cleaned_data.get('profile')
-#         company.company_name=self.cleaned_data.get('company_name')
-#         company.address=self.cleaned_data.get('address')
-#         company.verify_doc = self.cleaned_data.get('verify_doc')
-#         company.save()
-#         return user
-
-# class CompanydescForm(forms.ModelForm):
-#     overview = forms.Textarea(attrs={"cols": "35", "rows": "10"})
-#     work_environ = forms.Textarea(attrs={"cols": "35", "rows": "10"})
-#     job_desc = forms.Textarea(attrs={"cols": "35", "rows": "10","required": False})
-#     other_details = forms.Textarea(attrs={"cols": "35", "rows": "10"})
-
-#     class Meta:
-#         model = Company
-#         fields = ['overview','work_environ','job_desc','other_details']
-
-
-#     @transaction.atomic#if an exception occurs changes are not saved
-#     def save(self):
-#         return self.cleaned_data.get('overview'),self.cleaned_data.get('work_environ'),self.cleaned_data.get('job_desc'),self.cleaned_data.get('other_details')
-
-# class CompanyEditForm(forms.ModelForm):
-    # email = forms.EmailField(required=True)
-    # contact_number = forms.CharField(max_length=12,required=True)
-    # company_name =forms.CharField(required=True)
-    # address = forms.CharField(required=True)
-    # profile = forms.ChoiceField(choices=Profiles_choices)
-    # overview = forms.Textarea(attrs={"cols": "35", "rows": "10"})
-    # work_environ = forms.Textarea(attrs={"cols": "35", "rows": "10"})
-    # job_desc = forms.Textarea(attrs={"cols": "35", "rows": "10"})
-    # other_details = forms.Textarea(attrs={"cols": "35", "rows": "10"})
-
-    # class Meta():
-    #     model = Company
-    #     fields = ['email','contact_number','company_name','address','profile','overview','work_environ','job_desc','other_details']
-
-    # @transaction.atomic  #if an exception occurs changes are not saved
-    # def save(self):
-    #     return self.cleaned_data.get('contact_number'),self.cleaned_data.get('address'),self.cleaned_data.get('profile'),self.cleaned_data.get('overview'),self.cleaned_data.get('work_environ'),self.cleaned_data.get('job_desc'),self.cleaned_data.get('other_details')
+    @transaction.atomic  #if an exception occurs changes are not saved
+    def save(self):
+        return self.cleaned_data.get('Physician_Email'),self.cleaned_data.get('Start')

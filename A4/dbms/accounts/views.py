@@ -623,7 +623,7 @@ def handle_admit(request):
                 # adm = admission.objects.all()
                 # for x in adm:
                 #     print(x.Patient_Email,x.Room_ID,x.Start,x.End,x.PCP_Email,x.Total_Cost)
-                return render(request,'../templates/admin_user.html',{'whereto':'handle_admit','pat':pat})
+                return render(request,'../templates/admin_user.html',{'whereto':'handle_admit','pat':pat,'user':user})
         return redirect('/')  
     elif request.method == 'POST':
         user = front_desk.objects.get(Email_ID = (request.session['user']))
@@ -729,25 +729,34 @@ def schedule_appoint(request):
             user = front_desk.objects.get(Email_ID = (request.session['user']))
             if user is not None:
                 pat = patient.objects.all()
-                print(pat)
+                # print(pat)
+                return render(request,'../templates/schedule_appoint.html',{'whereto':'schedule_appoint','pat':pat,'user':user})
         return redirect('/') 
     elif request.method == 'POST':
         user = front_desk.objects.get(Email_ID = (request.session['user']))
         if user is not None:
             a = request.POST.get("comp_id")
             if a is not None:
-                # print("yes")
-                user = patient.objects.get(Email_ID = a)
-                values = {
-                        'First_Name':user.First_Name,
-                        'Last_Name':user.Last_Name,
-                    }
-                form = admit_pat(values)
-                form.fields['First_Name'].widget.attrs['readonly']  =True
-                form.fields['Last_Name'].widget.attrs['readonly']  =True
-                print(values)
-                return render(request,'../templates/admit_room.html',{'whereto':'patient_admit','form':form, 'Email_ID':user.Email_ID})
+                pat = patient.objects.get(Email_ID = a)
+                # print(pat)
+                # form = schedule_appoint()
+                if pat is not None:
+                    return render(request,'../templates/scheduler.html',{'whereto':'scheduler','form':schedule_appoint,'user':user})
         return redirect('/')
+
+def scheduler(request):
+    if(request.method == 'POST'):
+        user = front_desk.objects.get(Email_ID = (request.session['user']))
+        if user is not None:
+            a = request.POST.get("checker")
+            if a is not None:
+                pat = patient.objects.get(Email_ID = a)
+                doc = request.POST.get("doc")
+                date = request.POST.get("date")
+                print(type(date))
+                return render(request,'../templates/scheduler.html',{'whereto':'scheduler','pat':pat,'user':user})
+        return redirect('/')
+
 
 def index(request): # to return homepage depending upon the logged in user
     if(request.method == 'POST'):

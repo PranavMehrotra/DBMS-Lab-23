@@ -1,6 +1,5 @@
 {% extends 'doctor_navbar.html' %}
   {% load static %}
-  {% load widget_tweaks %}
   {% block title %} Hospital Management System {% endblock %}
   {% block css %}
   <style>
@@ -135,9 +134,7 @@
                   <th><h1>Patient Email</h1></th>
                   <th><h1>Name</h1></th>
                   <th><h1>Age</h1></th> 
-                  <th><h1>Admit</h1></th>
-                  <th><h1>Discharge</h1></th>
-                  <th><h1>Patient Info</h1></th>  
+                  <th><h1>Schedule Appointment</h1></th>
               </tr>
           </thead>
           <tbody>
@@ -150,27 +147,9 @@
                   <td>{{patient.Email_ID}}</td>
                   <td>{{patient.First_Name}} {{patient.Last_Name}}</td>
                   <td>{{patient.Age}}</td>
-                  {%if patient.Status == 1%}
-                      <td><button type="submit" name="comp_id" value={{patient.Email_ID}} form="apply_comp"
-                        class="btn btn-block btn-secondary ml-5" style="width:10vw" disabled>Admitted</button></td>
-                      <td><button type="submit" name="dis_id" value={{patient.Email_ID}} form="apply_comp"
-                        class="btn btn-block btn-success ml-5" style="width:10vw"
-                        >Discharge</button></td>
-                      <td><button type="submit" name="info" value={{patient.Email_ID}} form="apply_comp"
-                        class="btn btn-block btn-success ml-5" style="width:10vw"
-                        >Patient Info</button></td>
-                  {%else%}
-                        <td><button type="submit" name="comp_id" value={{patient.Email_ID}} form="apply_comp"
-                        class="btn btn-block btn-success ml-5" style="width:10vw"
-                        >Admit</button></td>
-                      
-                        <td><button type="submit" name="dis_id" value={{patient.Email_ID}} form="apply_comp"
-                        class="btn btn-block btn-secondary ml-5" style="width:10vw" disabled>Discharge</button></td>
-
-                        <td><button type="submit" name="info" value={{patient.Email_ID}} form="apply_comp"
-                          class="btn btn-block btn-success ml-5" style="width:10vw"
-                          >Patient Info</button></td>
-                        {% endif %}
+                    <td><button type="submit" name="comp_id" value={{patient.Email_ID}} form="apply_comp"
+                    class="btn btn-block btn-success ml-5" style="width:10vw"
+                    >Schedule</button></td>
               </tr>
               {% endfor %}
           </tbody>
