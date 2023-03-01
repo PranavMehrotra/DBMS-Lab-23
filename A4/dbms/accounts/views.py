@@ -625,7 +625,9 @@ def handle_admit(request):
         a = request.POST.get("comp_id")
         if a is not None:            
             try:
-                user = patient.objects.get(Email_ID = a)          
+                user = patient.objects.get(Email_ID = a)     
+                if user.Status==1:
+                    return redirect("/admit_discharge")     
                 values = {
                         'First_Name':user.First_Name,
                         'Last_Name':user.Last_Name,
@@ -641,8 +643,9 @@ def handle_admit(request):
         if a is not None:
             try:
                 user = patient.objects.get(Email_ID = a)
-                admit = admission.objects.filter(Patient_Email = a).order_by('-Start')
-                first_admit = admit.first()
+                if user.Status!=1:
+                    return redirect("/admit_discharge")  
+                first_admit = admission.objects.filter(Patient_Email = a).order_by('-Start').first()
                 naive_datetime = datetime.datetime.now()
                 naive_datetime.tzinfo  # None
 
@@ -651,7 +654,7 @@ def handle_admit(request):
                 aware_datetime.tzinfo  # <UTC>
                 first_admit.End =  aware_datetime
                 x = (first_admit.End - first_admit.Start)
-                print(x)
+                print(first_admit.End)
                 
                 user.Status=2
                 pat_room = room.objects.get(Room_ID = first_admit.Room_ID)
@@ -662,17 +665,18 @@ def handle_admit(request):
                 user.save()
                 first_admit.save()
                 pat_room.save()
-                return redirect("/admit_discharge")
+                user = patient.objects.get(Email_ID = a)
+                admit = admission.objects.filter(Patient_Email = a).order_by("-Admission_ID")
+                return render(request,'../templates/company_details.html',{'user':user, 'admit':admit})
             except Exception as e:
                 print(e)
                 return redirect("/admit_discharge")
         a = request.POST.get("info")
         if a is not None:
-            print("hhe")
-            print(len(a))
             try:
                 user = patient.objects.get(Email_ID = a)
-                admit = admission.objects.filter(Patient_Email = a)
+                
+                admit = admission.objects.filter(Patient_Email = a).order_by("-Admission_ID")
                 
                 print(user)
                 print(type(admit))
