@@ -50,7 +50,7 @@
                         id='discharge'>Discharge</button>
                       <button type="submit" name="info"  form="apply_comp"
                         class="btn btn-block btn-success ml-5" style="width:10vw;background-color:#0E1A35;height:5vh;margin:0;padding:2px" onclick="info_pat(event)" 
-                        id='discharge'>Patient Info</button>
+                        id='info'>Patient Info</button>
                     </div>
                     </div>
                 </div>
@@ -112,9 +112,11 @@
           if(!alert('Patient Doesn\'t Exist!')){window.location.reload();}
           
         }
+
         function info_pat(event) {
           x =  document.getElementById("hello").value;
-          
+          alert(x);
+
           {% for patient in pat %}
           if('{{patient.Email_ID}}' == x){
               document.getElementById("info").value = x;

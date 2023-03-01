@@ -25,40 +25,79 @@
                     <div class="card" style="border:5px solid white;">
                         <div class="card-header px-3 py-3 mt-3 mx-auto text-center"
                             style="background-color:#0E1A35;color:white;width:30vw;">
-                            <h1 class="display-4">{{user.First_Name}}</h1>
+                            <h1 class="display-4">{{user.First_Name}} {{user.Last_Name}}</h1>
                         </div>
                         <div class="card-body">
                             <div class="card mt-3">
                                 <div class="card-header">
-                                    <h3 class="display-5">Company Overview</h3>
+                                    <h3 class="display-5">Email-ID: </h3>
                                 </div>
                                 <div class="card-body">
-                                    {{comp.overview}}
+                                    {{user.Email_ID}}
                                 </div>
                             </div>
                             <div class="card mt-3">
                                 <div class="card-header">
-                                    <h3 class="display-5">Work Environment</h3>
+                                    <h3 class="display-5">Address: </h3>
                                 </div>
                                 <div class="card-body">
-                                    {{comp.work_environ}}
+                                    {{user.Address}}
                                 </div>
                             </div>
                             <div class="card mt-3">
                                 <div class="card-header">
-                                    <h3 class="display-5">Job Description</h3>
+                                    <h3 class="display-5">Phone Number: </h3>
                                 </div>
                                 <div class="card-body">
-                                    {{comp.job_desc}}
+                                    {{user.Phone}}
                                 </div>
                             </div>
                             <div class="card mt-3">
                                 <div class="card-header">
-                                    <h3 class="display-5">Some Other Details</h3>
+                                    <h3 class="display-5">Age: </h3>
                                 </div>
                                 <div class="card-body">
-                                    {{comp.other_details}}
+                                    {{user.Age}}
                                 </div>
+                            </div>
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h3 class="display-5">Blood Group: </h3>
+                                </div>
+                                <div class="card-body">
+                                    {{user.Blood_Group}}
+                                </div>
+                            </div>
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h3 class="display-5">Status: </h3>
+                                </div>
+                                
+                                {% if user.Status == 1%}
+                                <div class="card-body">
+                                    Current Admitted
+                                </div>
+                                {% else%}
+                                <div class="card-body">
+                                    Current Not Admitted
+                                </div>
+                                {% endif %}
+                            </div>
+                                
+                                <div class="card mt-3">
+                                    <div class="card-header">
+                                        <h3 class="display-5">Patient Admission: </h3>
+                                    </div>
+                                    {% for a in admit%}
+                                    {% if a.Start != a.End%}
+                                    <div class="card-body">
+                                        {{a.Admission_ID}}
+                                    </div>
+                                    {%endif%}
+                                    {%endfor%}
+                                </div>
+                                
+
                             </div>
                             <a href="/"
                                 style="color:black; position:relative;left:30vw;font-size:1.5em;">Go Back</a>

@@ -603,6 +603,7 @@ def apply_company(request):
 def company_details(request):
     if(request.method == 'POST'):
         if(request.user.is_authenticated):
+            
             comp_username = request.POST.get("comp_id")
             user = User.objects.get(username = comp_username)
             comp = Company.objects.get(user=user)
@@ -668,9 +669,17 @@ def handle_admit(request):
         a = request.POST.get("info")
         if a is not None:
             print("hhe")
-            print(a)
-            user = patient.objects.get(Email_ID = a)
-            return render(request,'../templates/company_details.html',{'user':0})
+            print(len(a))
+            try:
+                user = patient.objects.get(Email_ID = a)
+                admit = admission.objects.filter(Patient_Email = a)
+                
+                print(user)
+                print(type(admit))
+                return render(request,'../templates/company_details.html',{'user':user, 'admit':admit})
+            except Exception as e:
+                print(e)
+                return redirect("/admit_discharge")
         return redirect("/admit_discharge")
  
 class admit_patient(CreateView):
