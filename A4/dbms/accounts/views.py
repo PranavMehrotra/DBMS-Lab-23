@@ -1,3 +1,4 @@
+import math
 from django.contrib.auth import login, logout,authenticate
 from django.shortcuts import redirect, render
 from django.contrib import messages
@@ -611,60 +612,66 @@ def logout_view(request):#logout request
 #         return redirect('/')
 
 
-def schedule_appoint(request):
-    return redirect('/')
-
-
 def handle_admit(request):
     if(request.method == 'GET'):
         if 'user' in request.session and 'type' in request.session:
             user = front_desk.objects.get(Email_ID = (request.session['user']))
-            pat = patient.objects.all()
-            print(pat)
-            return render(request,'../templates/admin_user.html',{'whereto':'handle_admit','pat':pat})
+            if user is not None:
+                pat = patient.objects.all()
+                # print(pat)
+                # adm = admission.objects.all()
+                # for x in adm:
+                #     print(x.Patient_Email,x.Room_ID,x.Start,x.End,x.PCP_Email,x.Total_Cost)
+                return render(request,'../templates/admin_user.html',{'whereto':'handle_admit','pat':pat})
         return redirect('/')  
     elif request.method == 'POST':
-        a = request.POST.get("comp_id")
-        if a is not None:
-            print("yes")
-            user = patient.objects.get(Email_ID = a)
-            values = {
-                    'First_Name':user.First_Name,
-                    'Last_Name':user.Last_Name,
-                }
-            form = admit_pat(values)
-            form.fields['First_Name'].widget.attrs['readonly']  =True
-            form.fields['Last_Name'].widget.attrs['readonly']  =True
-            print(values)
-            return render(request,'../templates/admit_room.html',{'whereto':'patient_admit','form':form, 'Email_ID':user.Email_ID})#display the form in the edit_details.html
-        a = request.POST.get("dis_id")
-        if a is not None:
-            print("hello")
-            user = patient.objects.get(Email_ID = a)
-            admit = admission.objects.filter(Patient_Email = a).order_by('-Start')
-            
-            first_admit = admit.first()
-            naive_datetime = datetime.datetime.now()
-            naive_datetime.tzinfo  # None
+        user = front_desk.objects.get(Email_ID = (request.session['user']))
+        if user is not None:
+            a = request.POST.get("comp_id")
+            if a is not None:
+                # print("yes")
+                user = patient.objects.get(Email_ID = a)
+                values = {
+                        'First_Name':user.First_Name,
+                        'Last_Name':user.Last_Name,
+                    }
+                form = admit_pat(values)
+                form.fields['First_Name'].widget.attrs['readonly']  =True
+                form.fields['Last_Name'].widget.attrs['readonly']  =True
+                # print(values)
+                return render(request,'../templates/admit_room.html',{'whereto':'patient_admit','form':form, 'Email_ID':user.Email_ID})#display the form in the edit_details.html
+            a = request.POST.get("dis_id")
+            if a is not None:
+                # print("hello")
+                user = patient.objects.get(Email_ID = a)
+                # Order in descending order by the date field
+                admit = admission.objects.filter(Patient_Email = a).order_by('-Start')
+                
+                first_admit = admit.first()
+                # x = first_admit
+                # print(x.Patient_Email,x.Room_ID,x.Start,x.End,x.PCP_Email,x.Total_Cost)
+                naive_datetime = datetime.datetime.now()
+                naive_datetime.tzinfo  # None
 
-            settings.TIME_ZONE  # 'UTC'
-            aware_datetime = make_aware(naive_datetime)
-            aware_datetime.tzinfo  # <UTC>
-            first_admit.End =  aware_datetime
-            x = (first_admit.End - first_admit.Start)
-            print(x)
-            
-            user.Status=2
-            pat_room = room.objects.get(Room_ID = first_admit.Room_ID)
-            pat_room.Capacity += 1
-            first_admit.Total_Cost =  x.days * pat_room.Cost
-            
-            print(user.Status)
-            user.save()
-            first_admit.save()
-            pat_room.save()
-            return redirect("/admit_discharge")
- 
+                settings.TIME_ZONE  # 'UTC'
+                aware_datetime = make_aware(naive_datetime)
+                aware_datetime.tzinfo  # <UTC>
+                first_admit.End =  aware_datetime
+                x = (first_admit.End - first_admit.Start)
+                print(x)
+                
+                user.Status=2
+                pat_room = room.objects.get(Room_ID = first_admit.Room_ID)
+                pat_room.Capacity += 1
+                first_admit.Total_Cost =  x.days * pat_room.Cost
+                print(first_admit.Total_Cost)
+                # print(user.Status)
+                user.save()
+                first_admit.save()
+                pat_room.save()
+                return redirect("/admit_discharge")
+        return redirect('/')
+
 class admit_patient(CreateView):
     model = undergoes
     form_class = admit_pat
@@ -676,21 +683,52 @@ class admit_patient(CreateView):
     def form_valid(self,form):#form valid function
         if 'user' in self.request.session and 'type' in self.request.session:#if request is from an authenticated user 
             Email_ID = self.request.POST.get("my_variable")
-            
-            First_Name,Last_Name, Room_ID, Start, PCP_Email = form.save()#get data from form
-            print(First_Name,Last_Name, Room_ID, Start)
-            pa = admission(Patient_Email =Email_ID, Room_ID = Room_ID, Start=Start, End=Start, PCP_Email = PCP_Email)
-            
-            pat = patient.objects.get(Email_ID =Email_ID)
-            pat.Status = 1
-            
-            pat_room = room.objects.get(Room_ID = Room_ID)
-            pat_room.Capacity -= 1 
-            pat_room.save()
-            pa.save()
-            pat.save()
-            return redirect('/')
+            user = front_desk.objects.get(Email_ID = (self.request.session['user']))
+            if user is not None:
+                user = patient.objects.get(Email_ID = Email_ID)
+                if user is not None:
+                    First_Name,Last_Name, Room_ID, Start, PCP_Email = form.save()#get data from form
+                    doct = physician.objects.get(Email_ID = PCP_Email)
+                    if(Room_ID!="-1" and doct is not None):
+                        # print(First_Name,Last_Name, Room_ID, Start)
+                        pa = admission(Patient_Email =Email_ID, Room_ID = Room_ID, Start=Start, End=Start, PCP_Email = PCP_Email)
+                        
+                        pat = patient.objects.get(Email_ID =Email_ID)
+                        pat.Status = 1
+                        pat_room = room.objects.get(Room_ID = Room_ID)
+                        pat_room.Capacity -= 1 
+                        pat_room.save()
+                        pa.save()
+                        pat.save()
+        return redirect('/')
 
+
+def schedule_appoint(request):
+    if(request.method == 'GET'):
+        if 'user' in request.session and 'type' in request.session:
+            user = front_desk.objects.get(Email_ID = (request.session['user']))
+            if user is not None:
+                pat = patient.objects.all()
+                print(pat)
+                return render(request,'../templates/admin_user.html',{'whereto':'handle_admit','pat':pat})
+        return redirect('/') 
+    elif request.method == 'POST':
+        user = front_desk.objects.get(Email_ID = (request.session['user']))
+        if user is not None:
+            a = request.POST.get("comp_id")
+            if a is not None:
+                # print("yes")
+                user = patient.objects.get(Email_ID = a)
+                values = {
+                        'First_Name':user.First_Name,
+                        'Last_Name':user.Last_Name,
+                    }
+                form = admit_pat(values)
+                form.fields['First_Name'].widget.attrs['readonly']  =True
+                form.fields['Last_Name'].widget.attrs['readonly']  =True
+                print(values)
+                return render(request,'../templates/admit_room.html',{'whereto':'patient_admit','form':form, 'Email_ID':user.Email_ID})
+        return redirect('/')
 
 def index(request): # to return homepage depending upon the logged in user
     if(request.method == 'POST'):
