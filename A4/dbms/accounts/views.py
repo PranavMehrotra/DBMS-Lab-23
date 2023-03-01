@@ -1,4 +1,3 @@
-import math
 from django.contrib.auth import login, logout,authenticate
 from django.shortcuts import redirect, render
 from django.contrib import messages
@@ -59,6 +58,7 @@ class data_entry_register(CreateView):
   
 
 def login_admin(request):
+    print("hello")
     if request.method=='POST':#all requests withing the software are post and requests betwenn user and software is get
         print("h1h")
         username = request.POST['username']
@@ -603,6 +603,7 @@ def logout_view(request):#logout request
 # def company_details(request):
 #     if(request.method == 'POST'):
 #         if(request.user.is_authenticated):
+            
 #             comp_username = request.POST.get("comp_id")
 #             user = User.objects.get(username = comp_username)
 #             comp = Company.objects.get(user=user)
@@ -628,50 +629,69 @@ def handle_admit(request):
         user = front_desk.objects.get(Email_ID = (request.session['user']))
         if user is not None:
             a = request.POST.get("comp_id")
-            if a is not None:
-                # print("yes")
-                user = patient.objects.get(Email_ID = a)
-                values = {
-                        'First_Name':user.First_Name,
-                        'Last_Name':user.Last_Name,
-                    }
-                form = admit_pat(values)
-                form.fields['First_Name'].widget.attrs['readonly']  =True
-                form.fields['Last_Name'].widget.attrs['readonly']  =True
-                # print(values)
-                return render(request,'../templates/admit_room.html',{'whereto':'patient_admit','form':form, 'Email_ID':user.Email_ID})#display the form in the edit_details.html
+            if a is not None:            
+                try:
+                    user = patient.objects.get(Email_ID = a)     
+                    if user.Status==1:
+                        return redirect("/admit_discharge")     
+                    values = {
+                            'First_Name':user.First_Name,
+                            'Last_Name':user.Last_Name,
+                        }
+                    form = admit_pat(values)
+                    form.fields['First_Name'].widget.attrs['readonly']  =True
+                    form.fields['Last_Name'].widget.attrs['readonly']  =True
+                    print(values)
+                    return render(request,'../templates/admit_room.html',{'whereto':'patient_admit','form':form, 'Email_ID':user.Email_ID})#display the form in the edit_details.html
+                except patient.DoesNotExist:
+                    return redirect('/admit_discharge')
             a = request.POST.get("dis_id")
             if a is not None:
-                # print("hello")
-                user = patient.objects.get(Email_ID = a)
-                # Order in descending order by the date field
-                admit = admission.objects.filter(Patient_Email = a).order_by('-Start')
-                
-                first_admit = admit.first()
-                # x = first_admit
-                # print(x.Patient_Email,x.Room_ID,x.Start,x.End,x.PCP_Email,x.Total_Cost)
-                naive_datetime = datetime.datetime.now()
-                naive_datetime.tzinfo  # None
+                try:
+                    user = patient.objects.get(Email_ID = a)
+                    if user.Status!=1:
+                        return redirect("/admit_discharge")  
+                    first_admit = admission.objects.filter(Patient_Email = a).order_by('-Start').first()
+                    naive_datetime = datetime.datetime.now()
+                    naive_datetime.tzinfo  # None
 
-                settings.TIME_ZONE  # 'UTC'
-                aware_datetime = make_aware(naive_datetime)
-                aware_datetime.tzinfo  # <UTC>
-                first_admit.End =  aware_datetime
-                x = (first_admit.End - first_admit.Start)
-                print(x)
-                
-                user.Status=2
-                pat_room = room.objects.get(Room_ID = first_admit.Room_ID)
-                pat_room.Capacity += 1
-                first_admit.Total_Cost =  x.days * pat_room.Cost
-                print(first_admit.Total_Cost)
-                # print(user.Status)
-                user.save()
-                first_admit.save()
-                pat_room.save()
-                return redirect("/admit_discharge")
-        return redirect('/')
-
+                    settings.TIME_ZONE  # 'UTC'
+                    aware_datetime = make_aware(naive_datetime)
+                    aware_datetime.tzinfo  # <UTC>
+                    first_admit.End =  aware_datetime
+                    x = (first_admit.End - first_admit.Start)
+                    print(first_admit.End)
+                    
+                    user.Status=2
+                    pat_room = room.objects.get(Room_ID = first_admit.Room_ID)
+                    pat_room.Capacity += 1
+                    first_admit.Total_Cost =  x.days * pat_room.Cost
+                    print(first_admit.Total_Cost)
+                    user.save()
+                    first_admit.save()
+                    pat_room.save()
+                    user = patient.objects.get(Email_ID = a)
+                    admit = admission.objects.filter(Patient_Email = a).order_by("-Admission_ID")
+                    return render(request,'../templates/company_details.html',{'user':user, 'admit':admit})
+                except Exception as e:
+                    print(e)
+                    return redirect("/admit_discharge")
+            a = request.POST.get("info")
+            if a is not None:
+                try:
+                    user = patient.objects.get(Email_ID = a)
+                    
+                    admit = admission.objects.filter(Patient_Email = a).order_by("-Admission_ID")
+                    
+                    print(user)
+                    print(type(admit))
+                    return render(request,'../templates/company_details.html',{'user':user, 'admit':admit})
+                except Exception as e:
+                    print(e)
+                    return redirect("/admit_discharge")
+            return redirect("/admit_discharge")
+        return redirect("/")
+ 
 class admit_patient(CreateView):
     model = undergoes
     form_class = admit_pat
@@ -692,7 +712,7 @@ class admit_patient(CreateView):
                     if(Room_ID!="-1" and doct is not None):
                         # print(First_Name,Last_Name, Room_ID, Start)
                         pa = admission(Patient_Email =Email_ID, Room_ID = Room_ID, Start=Start, End=Start, PCP_Email = PCP_Email)
-                        
+
                         pat = patient.objects.get(Email_ID =Email_ID)
                         pat.Status = 1
                         pat_room = room.objects.get(Room_ID = Room_ID)
@@ -710,7 +730,6 @@ def schedule_appoint(request):
             if user is not None:
                 pat = patient.objects.all()
                 print(pat)
-                return render(request,'../templates/admin_user.html',{'whereto':'handle_admit','pat':pat})
         return redirect('/') 
     elif request.method == 'POST':
         user = front_desk.objects.get(Email_ID = (request.session['user']))
@@ -732,32 +751,31 @@ def schedule_appoint(request):
 
 def index(request): # to return homepage depending upon the logged in user
     if(request.method == 'POST'):
-        # print("hi")
+        print("hi")
         if 'user' in request.session and 'type' in request.session:
             try:
-                # print("hello")
+                print("hello")
                 user = db_admin.objects.get(username = (request.session['user']))
-                if user is not None:
-                    id = request.POST.get("front_id")
-                    if id is not None:    
-                        front = front_desk.objects.get(Email_ID = id)
-                        front.delete()
-                    id = request.POST.get("data_id")
-                    if id is not None:    
-                        front = data_entry.objects.get(Email_ID = id)
-                        front.delete()
-                    id = request.POST.get("doct_id")
-                    if id is not None:    
-                        front = physician.objects.get(Email_ID = id)
-                        front.delete()
-                        
-                    front = front_desk.objects.all()
-                    print(front)
-                    data = data_entry.objects.all()
-                    print(data)
-                    doct = physician.objects.all()
-                    print(doct)
-                    return render(request, 'index.html', {'user': user, 'type':type, 'status':1,'whereto':'index','fronts':front,'datas':data,'docts':doct})
+                id = request.POST.get("front_id")
+                if id is not None:    
+                    front = front_desk.objects.get(Email_ID = id)
+                    front.delete()
+                id = request.POST.get("data_id")
+                if id is not None:    
+                    front = data_entry.objects.get(Email_ID = id)
+                    front.delete()
+                id = request.POST.get("doct_id")
+                if id is not None:    
+                    front = physician.objects.get(Email_ID = id)
+                    front.delete()
+                    
+                front = front_desk.objects.all()
+                print(front)
+                data = data_entry.objects.all()
+                print(data)
+                doct = physician.objects.all()
+                print(doct)
+                return render(request, 'index.html', {'user': user, 'type':type, 'status':1,'whereto':'index','fronts':front,'datas':data,'docts':doct})
                 
             except Exception as e:
                 print(e)
@@ -808,3 +826,44 @@ def index(request): # to return homepage depending upon the logged in user
 
         else:
             return render(request, 'index.html')
+
+def record_treatment(request):
+    pass
+
+def doctor_pat_record(request):
+
+    # if (request.method == 'GET'):
+    #     if 'user' in request.session and 'type' in request.session:
+    #         try:
+    #             user = physician.objects.get(Email_ID = (request.session['user']))
+    #             return render(request, '../templates/doctor_pat_record.html', {'user': user, 'type':type, 'status':1})
+    #         except Exception as e:
+    #             print(e)
+    #             return redirect('/')
+    
+    if (request.method == 'GET'):
+        # return render(request, '../templates/doctor_pat_record.html', {'user': user, 'type':type, 'status':1})
+        if 'user' in request.session and 'type' in request.session:
+            try:
+                user = physician.objects.get(Email_ID = (request.session['user']))
+                print(user.Email_ID)
+                # get details of patients' who have had an appointment with the doctor
+                doctor_apts = appointment.objects.filter(Physician_Email = user.Email_ID)
+                print(doctor_apts)
+                patients = []  # list of patients
+                for apt in doctor_apts:
+                    pat = patient.objects.get(Email_ID = apt.Patient_Email)
+                    patients.append(pat)
+                print(patients)
+
+                return render(request, '../templates/doctor_pat_record.html', {'user': user, 'type':type, 'status':1, 'patients':patients})
+            except Exception as e:
+                print(e)
+                return redirect('/')
+
+        
+
+
+    
+
+
