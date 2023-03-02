@@ -273,28 +273,6 @@ class admit_patient(CreateView):
                         pat.save()
         return redirect('/')
 
-
-def schedule_appoint(request):
-    if(request.method == 'GET'):
-        if 'user' in request.session and 'type' in request.session:
-            user = front_desk.objects.get(Email_ID = (request.session['user']))
-            if user is not None:
-                pat = patient.objects.all()
-                # print(pat)
-                return render(request,'../templates/schedule_appoint.html',{'whereto':'schedule_appoint','pat':pat,'user':user})
-        return redirect('/') 
-    elif request.method == 'POST':
-        user = front_desk.objects.get(Email_ID = (request.session['user']))
-        if user is not None:
-            a = request.POST.get("comp_id")
-            if a is not None:
-                pat = patient.objects.get(Email_ID = a)
-                # print(pat)
-                # form = schedule_appoint()
-                if pat is not None:
-                    return render(request,'../templates/scheduler.html',{'whereto':'scheduler','form':schedule_app,'user':user,'pat':pat})
-        return redirect('/')
-
 def scheduler(request):
     if(request.method == 'POST'):
         user = front_desk.objects.get(Email_ID = (request.session['user']))
@@ -349,6 +327,27 @@ def scheduler(request):
                 appoint.save()
             return redirect('/schedule_appointment')
     return redirect('/')
+
+def schedule_appoint(request):
+    if(request.method == 'GET'):
+        if 'user' in request.session and 'type' in request.session:
+            user = front_desk.objects.get(Email_ID = (request.session['user']))
+            if user is not None:
+                pat = patient.objects.all()
+                # print(pat)
+                return render(request,'../templates/schedule_appoint.html',{'whereto':'schedule_appoint','pat':pat,'user':user})
+        return redirect('/') 
+    elif request.method == 'POST':
+        user = front_desk.objects.get(Email_ID = (request.session['user']))
+        if user is not None:
+            a = request.POST.get("comp_id")
+            if a is not None:
+                pat = patient.objects.get(Email_ID = a)
+                # print(pat)
+                # form = schedule_appoint()
+                if pat is not None:
+                    return render(request,'../templates/scheduler.html',{'whereto':'scheduler','form':schedule_app,'user':user,'pat':pat})
+        return redirect('/')
 
 def index(request): # to return homepage depending upon the logged in user
     if(request.method == 'POST'):
@@ -452,11 +451,13 @@ def doctor_pat_record(request):
             # get details of patients' who have had an appointment with the doctor
                 doctor_apts = appointment.objects.filter(Physician_Email = user.Email_ID)
                 # print(doctor_apts)
-                patients = []  # list of patients
-                for apt in doctor_apts: 
-                    pat = patient.objects.get(Email_ID = apt.Patient_Email)
+                doctor_appoints = set()
+                for apt in doctor_apts:
+                    doctor_appoints.add(apt.Patient_Email)
+                patients = []
+                for apt in doctor_appoints: 
+                    pat = patient.objects.get(Email_ID = apt)
                     patients.append(pat)
-                # print(patients)
 
                 return render(request, '../templates/doctor_pat_record.html', {'user': user, 'whereto': 'doctor_pat_record', 'patients':patients})
             # except Exception as e:
@@ -488,7 +489,20 @@ def doctor_pat_record(request):
                     pat = patient.objects.get(Email_ID = b)
                     # filter health records of the patient based on the email id using the admission table'
                     pat_admits = admission.objects.filter(Patient_Email = pat.Email_ID)
+                    print("Hello")
                     print(pat_admits)
+                    print("Hello")
+
+                    # get the health records of the patient for each admission
+                    pat_health = []
+                    for admit in pat_admits:
+                        health = health_record.objects.filter(Admission_ID = admit.Admission_ID)
+                        for h in health:
+                            pat_health.append(h)
+
+                    
+
+                    print(pat_health)
                 
         return redirect('/')
         
@@ -522,5 +536,32 @@ class doctor_prescribe(CreateView):
 #             user = physician.objects.get(Email_ID = (request.session['user']))
 
 #             if user is not None:
+
+
+def show_upcoming_appts(request):
+    if (request.method == 'GET'):
+        if 'user' in request.session and 'type' in request.session:
+
+            user = physician.objects.get(Email_ID = (request.session['user']))
+            
+            if user is not None:
+                
+                # get all doctor appointments starting from current day's appointment
+                date = datetime.datetime.date(make_aware(datetime.datetime.now()))
+                # print(date)
+                # aware_datetime = datetime.datetime
+                doctor_apts = appointment.objects.filter(Physician_Email = user.Email_ID, Start__gte = date)
+                # doctor_apts = appointment.objects.filter(Physician_Email = user.Email_ID, Start__gte = make_aware(datetime.datetime.now()))
+                print(doctor_apts)
+                patients = []
+                for apt in doctor_apts:
+                    pat = patient.objects.get(Email_ID = apt.Patient_Email)
+                    patients.append(pat)
+
+                print(patients)
+
+                return render(request, '../templates/doctor_apts.html', {'user': user, 'whereto': 'show_upcoming_appts', 'appointments': doctor_apts, 'patients': patients})
+
+
 
 
