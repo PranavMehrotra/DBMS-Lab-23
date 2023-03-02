@@ -5,7 +5,7 @@ from .models import *
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.hashers import make_password, check_password
-from django.forms.widgets import DateTimeInput
+from django.forms.widgets import DateTimeInput,DateInput
 
 BLOOD_GROUP_CHOICES = [
     ('A+', 'A+'),
@@ -126,22 +126,24 @@ class DataSignUpForm(forms.ModelForm):#form and formfields defined
     First_Name =forms.CharField(required=True, label="First Name")
     Last_Name =forms.CharField(required=True, label="Last Name")
     Employee_ID = forms.IntegerField(required=True)
-    password = forms.CharField(required=True, widget=forms.PasswordInput)
-    confirm = forms.CharField(required=True, widget=forms.PasswordInput,label='Confirm Password')
+    confirm = forms.CharField(required=True, widget=forms.PasswordInput, label="Password")
+    password = forms.CharField(required=True, widget=forms.PasswordInput, label="Confirm Password")
     
 
-    class Meta(forms.ModelForm):#Model Meta is basically used to change the behavior of your model fields like changing order options,verbose_name and lot of other options.
-        model = front_desk
+    class Meta():#Model Meta is basically used to change the behavior of your model fields like changing order options,verbose_name and lot of other options.
+        model = data_entry
         # Order of Fields in the Form
-        fields = ['Email_ID','First_Name', 'Last_Name', 'Employee_ID', 'password','confirm']
+        fields = ['Email_ID','First_Name', 'Last_Name', 'Employee_ID','confirm','password']
     
     def clean_password(self,*args,**kwargs):
         password = make_password(self.cleaned_data.get('password'))
-        confirm = (self.cleaned_data.get('confirm'))
-        if not check_password(confirm,password):
+        confirm = self.cleaned_data.get('confirm')
+        print(self.cleaned_data.get('confirm') , self.cleaned_data.get('password'))
+        if confirm != self.cleaned_data.get('password'):
             raise forms.ValidationError(_("Password Mismatch"),code='mismatch_password')
         else:
             return password
+
 
     @transaction.atomic  #if an exception occurs changes are not saved
     def save(self):
@@ -151,9 +153,9 @@ class DataSignUpForm(forms.ModelForm):#form and formfields defined
         Employee_ID = self.cleaned_data.get('Employee_ID')
         Email_ID = self.cleaned_data.get('Email_ID')
         password = self.cleaned_data.get('password')
-        data = data_entry(First_Name=First_Name,Last_Name = Last_Name, Employee_ID = Employee_ID, password=password, Email_ID = Email_ID)
-        data.save()
-        return data
+        front = data_entry(First_Name=First_Name,Last_Name = Last_Name, Employee_ID = Employee_ID, password=password, Email_ID = Email_ID)
+        front.save()
+        return front
 
 class admit_pat(forms.ModelForm):
     
@@ -219,25 +221,13 @@ class patient_register(forms.ModelForm):
     @transaction.atomic  #if an exception occurs changes are not saved
     def save(self):
         return self.cleaned_data.get('Email_ID'),self.cleaned_data.get('SSN'),self.cleaned_data.get('First_Name'),self.cleaned_data.get('Last_Name'),self.cleaned_data.get('Address'),self.cleaned_data.get('Insurance_ID'),self.cleaned_data.get('Phone'),self.cleaned_data.get('Age'),self.cleaned_data.get('Blood_Group'),0
-        
-        # Phone = self.cleaned_data.get('Phone')
-        # if len(Phone)==10 and Phone.isdigit():
-        #     return self.cleaned_data.get('SSN'),self.cleaned_data.get('First_Name'),self.cleaned_data.get('Address'),self.cleaned_data.get('Phone'),self.cleaned_data.get('Insurance_ID'),self.cleaned_data.get('PCP'),0
-        # else:   
-            # raise forms.ValidationError(_("Invalid Number Format"),code='invalid_format')
 
 class prescribe_form(forms.ModelForm):
     
     First_Name = forms.CharField(max_length = 255,required=True)
     Last_Name = forms.CharField(max_length = 255,required=True)
-    # Patient_Email = forms.EmailField() 
-    # Patient_SSN = forms.IntegerField(required=True)
-    # Address = forms.CharField(max_length = 255,required=True)
-    # Phone = forms.CharField(max_length = 255,required=True)
-    # Insurance_ID = forms.IntegerField(required=True)
     Age = forms.IntegerField(required=True)
     Blood_Group = forms.ChoiceField(choices = BLOOD_GROUP_CHOICES, label="Blood Group")
-    # Physician_Name = forms.CharField(max_length = 255,required=True)
     Prescribe_Date = forms.DateTimeField(widget=DateTimeInput(attrs={'type': 'datetime-local'}), required=True)
     Prescription = forms.Textarea(attrs={"cols": "35", "rows": "10"})
     
@@ -249,3 +239,28 @@ class prescribe_form(forms.ModelForm):
     def save(self):
         return self.cleaned_data.get('First_Name'),self.cleaned_data.get('Last_Name'),self.cleaned_data.get('Age'),self.cleaned_data.get('Blood_Group'),self.cleaned_data.get('Prescribe_Date'),self.cleaned_data.get('Prescription')
         
+
+class schedule_app(forms.ModelForm):
+    Physician_Email = forms.ChoiceField(choices=[],label="Physician Name")
+    Start = forms.DateField(widget=DateInput(attrs={'type': 'date'}),label="Appointment Date")
+
+
+    def get_pcp(self):
+        # Retrieve the choices from the database or some other source
+        # and return them as a list of tuples in the format (value, label)
+        patient_list=[]
+        doct = physician.objects.all()
+        for x in doct:
+            patient_list.append((x.Email_ID,x.First_Name+" "+x.Last_Name))
+        return patient_list
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['Physician_Email'].choices = self.get_pcp()
+
+    class Meta():
+        model = appointment
+        fields = ['Physician_Email','Start']
+    
+    @transaction.atomic  #if an exception occurs changes are not saved
+    def save(self):
+        return self.cleaned_data.get('Physician_Email'),self.cleaned_data.get('Start')
