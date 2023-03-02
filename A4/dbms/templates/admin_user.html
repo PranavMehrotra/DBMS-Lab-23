@@ -1,6 +1,5 @@
 {% extends 'doctor_navbar.html' %}
   {% load static %}
-  {% load widget_tweaks %}
   {% block title %} Hospital Management System {% endblock %}
   {% block css %}
   <style>
@@ -123,11 +122,14 @@
         display: none;
       }
     }
+    h1{
+      color:white !important;
+    }
   </style>
 
   <section>
     <div class="container mt-4">
-      <h1 class="text-center page-title"><strong>Records of Patients</strong></h1>
+      <h1 class="text-center page-title" style="color:white"><strong>Records of Patients</strong></h1>
       <table class="table table-hover" id="example">
           <thead>
               <tr>
