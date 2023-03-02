@@ -5,7 +5,7 @@ from .models import *
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.hashers import make_password, check_password
-from django.forms.widgets import DateTimeInput
+from django.forms.widgets import DateTimeInput,DateInput
 
 BLOOD_GROUP_CHOICES = [
     ('A+', 'A+'),
@@ -221,25 +221,13 @@ class patient_register(forms.ModelForm):
     @transaction.atomic  #if an exception occurs changes are not saved
     def save(self):
         return self.cleaned_data.get('Email_ID'),self.cleaned_data.get('SSN'),self.cleaned_data.get('First_Name'),self.cleaned_data.get('Last_Name'),self.cleaned_data.get('Address'),self.cleaned_data.get('Insurance_ID'),self.cleaned_data.get('Phone'),self.cleaned_data.get('Age'),self.cleaned_data.get('Blood_Group'),0
-        
-        # Phone = self.cleaned_data.get('Phone')
-        # if len(Phone)==10 and Phone.isdigit():
-        #     return self.cleaned_data.get('SSN'),self.cleaned_data.get('First_Name'),self.cleaned_data.get('Address'),self.cleaned_data.get('Phone'),self.cleaned_data.get('Insurance_ID'),self.cleaned_data.get('PCP'),0
-        # else:   
-            # raise forms.ValidationError(_("Invalid Number Format"),code='invalid_format')
 
 class prescribe_form(forms.ModelForm):
     
     First_Name = forms.CharField(max_length = 255,required=True)
     Last_Name = forms.CharField(max_length = 255,required=True)
-    # Patient_Email = forms.EmailField() 
-    # Patient_SSN = forms.IntegerField(required=True)
-    # Address = forms.CharField(max_length = 255,required=True)
-    # Phone = forms.CharField(max_length = 255,required=True)
-    # Insurance_ID = forms.IntegerField(required=True)
     Age = forms.IntegerField(required=True)
     Blood_Group = forms.ChoiceField(choices = BLOOD_GROUP_CHOICES, label="Blood Group")
-    # Physician_Name = forms.CharField(max_length = 255,required=True)
     Prescribe_Date = forms.DateTimeField(widget=DateTimeInput(attrs={'type': 'datetime-local'}), required=True)
     Prescription = forms.Textarea(attrs={"cols": "35", "rows": "10"})
     
@@ -251,3 +239,28 @@ class prescribe_form(forms.ModelForm):
     def save(self):
         return self.cleaned_data.get('First_Name'),self.cleaned_data.get('Last_Name'),self.cleaned_data.get('Age'),self.cleaned_data.get('Blood_Group'),self.cleaned_data.get('Prescribe_Date'),self.cleaned_data.get('Prescription')
         
+
+class schedule_app(forms.ModelForm):
+    Physician_Email = forms.ChoiceField(choices=[],label="Physician Name")
+    Start = forms.DateField(widget=DateInput(attrs={'type': 'date'}),label="Appointment Date")
+
+
+    def get_pcp(self):
+        # Retrieve the choices from the database or some other source
+        # and return them as a list of tuples in the format (value, label)
+        patient_list=[]
+        doct = physician.objects.all()
+        for x in doct:
+            patient_list.append((x.Email_ID,x.First_Name+" "+x.Last_Name))
+        return patient_list
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['Physician_Email'].choices = self.get_pcp()
+
+    class Meta():
+        model = appointment
+        fields = ['Physician_Email','Start']
+    
+    @transaction.atomic  #if an exception occurs changes are not saved
+    def save(self):
+        return self.cleaned_data.get('Physician_Email'),self.cleaned_data.get('Start')
