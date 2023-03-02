@@ -749,13 +749,29 @@ def scheduler(request):
         user = front_desk.objects.get(Email_ID = (request.session['user']))
         if user is not None:
             a = request.POST.get("checker")
-            print(a)
+            # print(a)
             if a is not None:
                 pat = patient.objects.get(Email_ID = a)
                 doc = request.POST.get("Physician_Email")
                 date = request.POST.get("Start")
-                print(type(date))
-                print(doc,date)
+                # print(date)
+                print(doc)
+                # print(pat)
+                date = datetime.datetime.strptime(date, '%Y-%m-%d')
+                date = make_aware(date)
+                print(date)
+                appoints = []
+                for i in range(24):
+                    appoint = appointment.objects.filter(Physician_Email = doc, Start = (date+datetime.timedelta(hours=i)))
+                    # print(date+datetime.timedelta(hours=i))
+                    # print("hell")
+                    if appoint is not None and len(appoint) > 0:
+                        print(appoint.values())
+                        appoints.append(appoint)
+                # appoints = appointment.objects.filter(Physician_Email = doc, Start = date)
+                # if appoints is not None:
+                print(appoints)
+
                 return render(request,'../templates/scheduler.html',{'whereto':'scheduler','pat':pat,'user':user})
         return redirect('/')
 
