@@ -169,10 +169,13 @@
               <form action="{% url whereto %}" enctype="multipart/form-data" method="POST" id="apply_comp">
                 {% csrf_token %}
               </form>
+                <input type="hidden" form="apply_comp" name="Patient_Email" value={{pat.Email_ID}}>
+                <input type="hidden" form="apply_comp" name="Physician_Email" value={{vals.Physician_Email}}>
+                <input type="hidden" form="apply_comp" name="Start" value={{vals.Start}}>
                 <td>{{ forloop.counter }}</td>
                 <td>{{slot.time}}</td>
                     <td><button type="submit" name="slot_id" value={{slot.id}} form="apply_comp"
-                      class="btn btn-block btn-reserve ml-5">Schedule</button>
+                      class="btn btn-block btn-reserve ml-5" onclick="confirm_it(event)">Schedule</button>
                     </td>    
             </tr>
             {% endfor %}
@@ -182,5 +185,14 @@
      
   </div>
   </section>
-{% endblock %}
-</html>
+  {% block scripts %}
+  <script>
+    function confirm_it(event){
+      if (!window.confirm("Are you sure you want to schedule this appointment?")) {
+        event.preventDefault();
+      }
+    }
+  </script>
+
+  {% endblock %}
+  {% endblock %}

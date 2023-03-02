@@ -738,7 +738,7 @@ def schedule_appoint(request):
             a = request.POST.get("comp_id")
             if a is not None:
                 pat = patient.objects.get(Email_ID = a)
-                print(pat)
+                # print(pat)
                 # form = schedule_appoint()
                 if pat is not None:
                     return render(request,'../templates/scheduler.html',{'whereto':'scheduler','form':schedule_app,'user':user,'pat':pat})
@@ -749,9 +749,6 @@ def scheduler(request):
         user = front_desk.objects.get(Email_ID = (request.session['user']))
         if user is not None:
             a = request.POST.get("checker")
-            date = ""
-            doc = ""
-            pat = ""
             if a is not None:
                 pat = patient.objects.get(Email_ID = a)
                 doc = request.POST.get("Physician_Email")
@@ -764,7 +761,7 @@ def scheduler(request):
                 date = make_aware(date)
                 # print(date)
                 appoints = []
-                for i in range(24):
+                for i in range(10,20,1):
                     appoint = appointment.objects.filter(Physician_Email = doc, Start = (date+datetime.timedelta(hours=i)))
                     # print(date+datetime.timedelta(hours=i))
                     # print("hell")
@@ -775,18 +772,21 @@ def scheduler(request):
                             'id' : i,
                             'time' : time
                         })
-                print(len(appoints))
+                # print(len(appoints))
                 form = schedule_app(values)
-                return render(request,'../templates/scheduler.html',{'whereto':'scheduler', 'form':form, 'pat':pat,'user':user, 'slots':appoints})
+                return render(request,'../templates/scheduler.html',{'whereto':'scheduler', 'form':form, 'pat':pat,'user':user, 'slots':appoints, 'vals':values})
             a = request.POST.get("slot_id")
             if a is not None:
                 a = int(a)
-                print(pat)
-                print(doc)
-                print(date)
-                print(a)
-
-        return redirect('/')
+                pat = request.POST.get("Patient_Email")
+                doc = request.POST.get("Physician_Email")
+                date = request.POST.get("Start")
+                date = datetime.datetime.strptime(date, '%Y-%m-%d')
+                date = make_aware(date)
+                appoint = appointment(Patient_Email = pat, Physician_Email = doc, Start = (date+datetime.timedelta(hours=a)))
+                appoint.save()
+            return redirect('/schedule_appointment')
+    return redirect('/')
 
 
 def index(request): # to return homepage depending upon the logged in user
