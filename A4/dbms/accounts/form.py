@@ -6,6 +6,9 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.hashers import make_password, check_password
 from django.forms.widgets import DateTimeInput,DateInput
+from django.forms.widgets import SelectDateWidget
+import datetime
+from django.utils.timezone import make_aware
 
 BLOOD_GROUP_CHOICES = [
     ('A+', 'A+'),
@@ -242,7 +245,7 @@ class prescribe_form(forms.ModelForm):
 
 class schedule_app(forms.ModelForm):
     Physician_Email = forms.ChoiceField(choices=[],label="Physician Name")
-    Start = forms.DateField(widget=DateInput(attrs={'type': 'date'}),label="Appointment Date", required=True)
+    Start = forms.DateField(widget=DateInput(attrs={'type': 'date', 'min': '2022-05-20'}),label="Appointment Date", required=True)
     Appointment_Fee = forms.IntegerField(required=True)
     Emergency = forms.BooleanField(required=False, initial=False ,label="Is This Emergency?")
 
@@ -257,6 +260,10 @@ class schedule_app(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['Physician_Email'].choices = self.get_pcp()
+        date = datetime.datetime.now(tz=datetime.timezone.utc)
+        date = date + datetime.timedelta(days=1)
+        date = date.strftime("%Y-%m-%d")
+        self.fields['Start'].widget.attrs['min'] = date
 
     class Meta():
         model = appointment

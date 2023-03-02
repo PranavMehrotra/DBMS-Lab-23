@@ -321,7 +321,7 @@ def scheduler(request):
                     appoint = appointment.objects.filter(Physician_Email = doc, Start = (date+datetime.timedelta(hours=i)))
                     # print(date+datetime.timedelta(hours=i))
                     # print("hell")
-                    if appoint is not None and len(appoint) == 0:
+                    if (emergency or (appoint is not None and len(appoint) == 0)):
                         time = str("{0:02d}:00 - {1:02d}:00".format(i, i+1))
                         # print(time)
                         appoints.append({
@@ -337,9 +337,15 @@ def scheduler(request):
                 pat = request.POST.get("Patient_Email")
                 doc = request.POST.get("Physician_Email")
                 date = request.POST.get("Start")
+                fee = request.POST.get("Appointment_Fee")
                 date = datetime.datetime.strptime(date, '%Y-%m-%d')
                 date = make_aware(date)
-                appoint = appointment(Patient_Email = pat, Physician_Email = doc, Start = (date+datetime.timedelta(hours=a)))
+                check_appoint = appointment.objects.get(Physician_Email = doc, Start = (date+datetime.timedelta(hours=a)))
+                if check_appoint is not None:
+                    print("Appointment already exists!")
+                    print("Deleting the appointment")
+                    check_appoint.delete()
+                appoint = appointment(Patient_Email = pat, Physician_Email = doc, Start = (date+datetime.timedelta(hours=a)),Appointment_Fee = fee)
                 appoint.save()
             return redirect('/schedule_appointment')
     return redirect('/')
