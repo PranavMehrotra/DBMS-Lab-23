@@ -242,8 +242,9 @@ class prescribe_form(forms.ModelForm):
 
 class schedule_app(forms.ModelForm):
     Physician_Email = forms.ChoiceField(choices=[],label="Physician Name")
-    Start = forms.DateField(widget=DateInput(attrs={'type': 'date'}),label="Appointment Date")
-
+    Start = forms.DateField(widget=DateInput(attrs={'type': 'date'}),label="Appointment Date", required=True)
+    Appointment_Fee = forms.IntegerField(required=True)
+    Emergency = forms.BooleanField(required=False, initial=False ,label="Is This Emergency?")
 
     def get_pcp(self):
         # Retrieve the choices from the database or some other source
@@ -259,8 +260,8 @@ class schedule_app(forms.ModelForm):
 
     class Meta():
         model = appointment
-        fields = ['Physician_Email','Start']
+        fields = ['Physician_Email','Start','Appointment_Fee','Emergency']
     
     @transaction.atomic  #if an exception occurs changes are not saved
     def save(self):
-        return self.cleaned_data.get('Physician_Email'),self.cleaned_data.get('Start')
+        return self.cleaned_data.get('Physician_Email'),self.cleaned_data.get('Start'),self.cleaned_data.get('Appointment_Fee'),self.cleaned_data.get('Emergency')

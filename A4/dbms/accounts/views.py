@@ -304,10 +304,15 @@ def scheduler(request):
                 pat = patient.objects.get(Email_ID = a)
                 doc = request.POST.get("Physician_Email")
                 date = request.POST.get("Start")
+                fee = request.POST.get("Appointment_Fee")
+                emergency = request.POST.get("Emergency")
                 values = {
                     'Physician_Email': doc,
                     'Start': date,
+                    'Appointment_Fee': fee,
+                    'Emergency': emergency,
                 }
+                print(values)
                 date = datetime.datetime.strptime(date, '%Y-%m-%d')
                 date = make_aware(date)
                 # print(date)
