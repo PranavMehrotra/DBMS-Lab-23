@@ -6,6 +6,9 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.hashers import make_password, check_password
 from django.forms.widgets import DateTimeInput,DateInput
+from django.forms.widgets import SelectDateWidget
+import datetime
+from django.utils.timezone import make_aware
 
 BLOOD_GROUP_CHOICES = [
     ('A+', 'A+'),
@@ -209,7 +212,7 @@ class patient_register(forms.ModelForm):
     Last_Name = forms.CharField(max_length = 255,required=True)
     Address = forms.CharField(max_length = 255,required=True)
     Phone = forms.CharField(max_length = 255,required=True)
-    Insurance_ID = forms.IntegerField(required=True)
+    Insurance_ID = forms.IntegerField()
     Age = forms.IntegerField(required=True)
     Blood_Group = forms.ChoiceField(choices = BLOOD_GROUP_CHOICES, label="Blood Group")
     
@@ -242,8 +245,9 @@ class prescribe_form(forms.ModelForm):
 
 class schedule_app(forms.ModelForm):
     Physician_Email = forms.ChoiceField(choices=[],label="Physician Name")
-    Start = forms.DateField(widget=DateInput(attrs={'type': 'date'}),label="Appointment Date")
-
+    Start = forms.DateField(widget=DateInput(attrs={'type': 'date', 'min': '2022-05-20'}),label="Appointment Date", required=True)
+    Appointment_Fee = forms.IntegerField(required=True)
+    Emergency = forms.BooleanField(required=False, initial=False ,label="Is This Emergency?")
 
     def get_pcp(self):
         # Retrieve the choices from the database or some other source
@@ -256,15 +260,19 @@ class schedule_app(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['Physician_Email'].choices = self.get_pcp()
+        date = datetime.datetime.now(tz=datetime.timezone.utc)
+        date = date + datetime.timedelta(days=1)
+        date = date.strftime("%Y-%m-%d")
+        self.fields['Start'].widget.attrs['min'] = date
 
     class Meta():
         model = appointment
-        fields = ['Physician_Email','Start']
+        fields = ['Physician_Email','Start','Appointment_Fee','Emergency']
     
     @transaction.atomic  #if an exception occurs changes are not saved
     def save(self):
-        return self.cleaned_data.get('Physician_Email'),self.cleaned_data.get('Start')
-    
+        return self.cleaned_data.get('Physician_Email'),self.cleaned_data.get('Start'),self.cleaned_data.get('Appointment_Fee'),self.cleaned_data.get('Emergency')
+
 class patient_test(forms.ModelForm):
 
     First_Name = forms.CharField(max_length = 255,required=True)
@@ -299,40 +307,3 @@ class patient_test(forms.ModelForm):
     @transaction.atomic  #if an exception occurs changes are not saved
     def save(self):
         return self.cleaned_data.get('First_Name'),self.cleaned_data.get("Last_Name"),self.cleaned_data.get('Test_ID'),self.cleaned_data.get('Date'), self.cleaned_data.get("Test_Result")
-
-
-class patient_treatment(forms.ModelForm):
-
-    First_Name = forms.CharField(max_length = 255,required=True)
-    Last_Name = forms.CharField(max_length = 255,required=True)
-    Test_ID = forms.ChoiceField(choices=[])
-    Date = forms.DateTimeField(widget=DateTimeInput(attrs={'type': 'datetime-local'}))
-    Test_Result = forms.CharField(widget=forms.Textarea)
-    
-    
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['Test_ID'].choices = self.get_test()
-
-
-    def get_test(self):
-        # Retrieve the choices from the database or some other source
-        # and return them as a list of tuples in the format (value, label)
-        all_test=[]
-        test = tests.objects.all()
-        for x in test: 
-            all_test.append((x.Test_ID,x.Test_Name))
-        if all_test == []:
-                all_test.append((-1, "NO TESTS AVAILABLE"))
-        return all_test
-    
-    class Meta():
-        model = patient
-        fields = ['First_Name','Last_Name', "Test_ID", 'Date', "Test_Result"]
-        
-
-
-    @transaction.atomic  #if an exception occurs changes are not saved
-    def save(self):
-        return self.cleaned_data.get('First_Name'),self.cleaned_data.get("Last_Name"),self.cleaned_data.get('Test_ID'),self.cleaned_data.get('Date'), self.cleaned_data.get("Test_Result")
-

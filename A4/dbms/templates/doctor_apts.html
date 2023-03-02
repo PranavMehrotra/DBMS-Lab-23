@@ -125,30 +125,38 @@
   </style>
 
 <div class="container mt-4">
-    <h1 class="text-center page-title"><strong>Records of Treated Patients</strong></h1>
+    <h1 class="text-center page-title"><strong>Upcoming Patients' Appointments</strong></h1>
     <table class="table table-hover" id="example">
         <thead>
             <tr>
                 <th><h1>Sr.No</h1></th>
+                <th><h1>Appt. ID</h1></th>
+                <th><h1>Patient Name</h1></th>
                 <th><h1>Patient Email</h1></th>
-                <th><h1>Name</h1></th>
+                <th><h1>Patient Contact</h1></th>
                 <th><h1>Age</h1></th> 
                 <th><h1>Admit Status</h1></th>
-                <th><h1>Detailed Health Record</h1></th>
-                <th><h1>Prescribe Medication</h1></th>  
+                <th><h1>Scheduled At</h1></th>
+                <!-- <th><h1>Detailed Health Record</h1></th> -->
+                <!-- <th><h1>Prescribe Medication</h1></th>   -->
             </tr>
         </thead>
         <tbody>
+            {% for apt in appointments %}
             {% for patient in patients %}
+            {% if apt.Patient_Email == patient.Email_ID %}
             <tr>
-              <form action="{% url whereto %}" enctype="multipart/form-data" method="POST" id="apply_comp">
+              <!-- <form action="{% url whereto %}" enctype="multipart/form-data" method="POST" id="apply_comp">
                 {% csrf_token %}
-              </form>
+              </form> -->
                 <td>{{forloop.counter}}.</td>
-                <td>{{patient.Email_ID}}</td>
+                <td>{{apt.Appointment_ID}}</td>
                 <td>{{patient.First_Name}} {{patient.Last_Name}}</td> 
+                <td>{{apt.Patient_Email}}</td>
+                <td>{{patient.Phone}}</td>
                 <td>{{patient.Age}}</td>
                 <!-- <td>{{patient.Status}}</td> -->
+                <!-- <td>{{apt.Date}}</td> -->
                 {% if patient.Status == 1%}
                 <!-- <div class="card-body" style="padding:5px"> -->
                     <td>Currently Admitted</td>
@@ -158,12 +166,13 @@
                     <td>Currently Not Admitted</td>
                 </div>
                 {% endif %}
-                <td>
+                <td>{{apt.Start}}</td>
+                <!-- <td>
                   <button type="submit" name="pat_email_health" value={{patient.Email_ID}} form="apply_comp"
                   class="btn btn-reserve">Show Health Record</button></td>
                 <td><button type="submit" name="comp_id" value={{patient.Email_ID}} form="apply_comp"
                   class="btn btn-reserve"
-                  >Prescribe</button> </td>
+                  >Prescribe</button> </td> -->
 
                 <!-- {% if book.issue_date is "" or book.issue_date is null %}
                     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;No</td>
@@ -173,6 +182,8 @@
                     <td><a href="/member/reserve_book/{{book.id}}/" class="btn btn-reserve" onclick="return confirm('Are you sure you want to Reserve this book?')">Reserve</a></td>                
                 {% endif %} -->
             </tr>
+            {% endif %}
+            {% endfor %}
             {% endfor %}
         </tbody>
     </table>
