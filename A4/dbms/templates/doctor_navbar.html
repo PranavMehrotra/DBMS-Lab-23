@@ -75,14 +75,16 @@
               <!-- &nbsp;&nbsp;&nbsp;
               <li class="nav-item">
                 <li><a class="nav-link active" href="/member/view_reminders">View Reminders</a></li>
-              </li>
-              <li class="nav-item">
-                <a class="nav-link active" aria-current="page" href="/member/logout/">Logout</a>
               </li> -->
+              <li class="nav-item">
+                <a class="nav-link active" aria-current="page" href="{% url 'logout'%}">Logout</a>
+              </li>
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
               <li class="nav-item display-msg-header">
                 <a style="font-weight:600; font-family:'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; font-size: large;" class="nav-link active" href="#">Welcome: {{user.First_Name}}</a>
               </li>
+
+
             </ul>
           </div>
         </div>
