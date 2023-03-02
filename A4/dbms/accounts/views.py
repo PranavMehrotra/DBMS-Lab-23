@@ -619,10 +619,6 @@ def handle_admit(request):
             user = front_desk.objects.get(Email_ID = (request.session['user']))
             if user is not None:
                 pat = patient.objects.all()
-                # print(pat)
-                # adm = admission.objects.all()
-                # for x in adm:
-                #     print(x.Patient_Email,x.Room_ID,x.Start,x.End,x.PCP_Email,x.Total_Cost)
                 return render(request,'../templates/admin_user.html',{'whereto':'handle_admit','pat':pat})
         return redirect('/')  
     elif request.method == 'POST':
@@ -680,9 +676,7 @@ def handle_admit(request):
             if a is not None:
                 try:
                     user = patient.objects.get(Email_ID = a)
-                    
                     admit = admission.objects.filter(Patient_Email = a).order_by("-Admission_ID")
-                    
                     print(user)
                     print(type(admit))
                     return render(request,'../templates/company_details.html',{'user':user, 'admit':admit})
@@ -844,26 +838,82 @@ def doctor_pat_record(request):
     if (request.method == 'GET'):
         # return render(request, '../templates/doctor_pat_record.html', {'user': user, 'type':type, 'status':1})
         if 'user' in request.session and 'type' in request.session:
-            try:
-                user = physician.objects.get(Email_ID = (request.session['user']))
-                print(user.Email_ID)
-                # get details of patients' who have had an appointment with the doctor
+            # try:
+            user = physician.objects.get(Email_ID = (request.session['user']))
+            # print(user.Email_ID)
+            if user is not None:
+            # get details of patients' who have had an appointment with the doctor
                 doctor_apts = appointment.objects.filter(Physician_Email = user.Email_ID)
-                print(doctor_apts)
+                # print(doctor_apts)
                 patients = []  # list of patients
-                for apt in doctor_apts:
+                for apt in doctor_apts: 
                     pat = patient.objects.get(Email_ID = apt.Patient_Email)
                     patients.append(pat)
-                print(patients)
+                # print(patients)
 
-                return render(request, '../templates/doctor_pat_record.html', {'user': user, 'type':type, 'status':1, 'patients':patients})
-            except Exception as e:
-                print(e)
-                return redirect('/')
-
+                return render(request, '../templates/doctor_pat_record.html', {'user': user, 'whereto': 'doctor_pat_record', 'patients':patients})
+            # except Exception as e:
+            #     print(e)
+                # return redirect('/')
+    if (request.method == 'POST'):
+        if 'user' in request.session and 'type' in request.session:
+            # try:
+            user = physician.objects.get(Email_ID = (request.session['user']))
+            if user is not None:
+                a = request.POST.get('comp_id')
+                if a is not None:
+                    pat = patient.objects.get(Email_ID = a)
+                    values = {
+                        'First_Name': pat.First_Name,
+                        'Last_Name': pat.Last_Name,
+                        'Age': pat.Age,
+                        'Blood_Group': pat.Blood_Group
+                    }
+                    form = prescribe_form(values)
+                    form.fields['First_Name'].widget.attrs['readonly']  =True
+                    form.fields['Last_Name'].widget.attrs['readonly']  =True
+                    form.fields['Age'].widget.attrs['readonly']  =True
+                    form.fields['Blood_Group'].widget.attrs['readonly']  =True
+                    return render(request, '../templates/doctor_prescribes.html', {'user': user, 'whereto': 'prescribe_medic', 'form': form, 'pat':pat})
+                
+                b = request.POST.get('pat_email_health')
+                if b is not None:
+                    pat = patient.objects.get(Email_ID = b)
+                    # filter health records of the patient based on the email id using the admission table'
+                    pat_admits = admission.objects.filter(Patient_Email = pat.Email_ID)
+                    print(pat_admits)
+                
+        return redirect('/')
         
+class doctor_prescribe(CreateView):
+    model = prescribes
+    form_class = prescribe_form
+    template_name = '../templates/doctor_prescribes.html'
+
+    def get(self, request):
+        return redirect('doctor_pat_record')
+        
+    def form_valid(self, form):
+        if 'user' in self.request.session and 'type' in self.request.session:
+            user = physician.objects.get(Email_ID = (self.request.session['user']))
+            print(user.Email_ID)
+            First_Name,Last_Name,Age, Blood_Group,Prescribe_Date,Prescription = form.save()
+            print(First_Name,Last_Name,Age, Blood_Group,Prescribe_Date,Prescription,self.request.POST.get('patient_id'))
+            pres = prescribes(Physician_Email = user.Email_ID, Patient_Email = self.request.POST.get('patient_id'), Date=Prescribe_Date, Prescription=Prescription)
+            pres.save()
+            return redirect('doctor_pat_record')
+
+        else:
+            return redirect('/')
 
 
-    
+# def show_health_records(request):
+
+#     if (request.method == 'GET'):
+#         if 'user' in request.session and 'type' in request.session:
+
+#             user = physician.objects.get(Email_ID = (request.session['user']))
+
+#             if user is not None:
 
 

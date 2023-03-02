@@ -94,13 +94,13 @@
     }
   
     .container td:hover {
-      background-color: #8ac8bf;
-      color: #185875;
+      /* background-color: #8ac8bf; */
+      /* color: #185875; */
       font-weight: bold;
   
-      box-shadow: #78afa7 -1px 1px, #78afa7 -2px 2px, #78afa7 -3px 3px,
+      /* box-shadow: #78afa7 -1px 1px, #78afa7 -2px 2px, #78afa7 -3px 3px,
         #78afa7 -4px 4px, #78afa7 -5px 5px, #78afa7 -6px 6px;
-      transform: translate3d(6px, -6px, 0);
+      transform: translate3d(6px, -6px, 0); */
   
       transition-delay: 0s;
       transition-duration: 0.4s;
@@ -135,19 +135,26 @@
                 <th><h1>Age</h1></th> 
                 <th><h1>Admit Status</h1></th>
                 <th><h1>Detailed Health Record</h1></th>
-                <th><h1>Record Treatment</h1></th>  
+                <th><h1>Prescribe Medication</h1></th>  
             </tr>
         </thead>
         <tbody>
             {% for patient in patients %}
             <tr>
+              <form action="{% url whereto %}" enctype="multipart/form-data" method="POST" id="apply_comp">
+                {% csrf_token %}
+              </form>
                 <td>{{forloop.counter}}.</td>
                 <td>{{patient.Email_ID}}</td>
                 <td>{{patient.First_Name}} {{patient.Last_Name}}</td> 
                 <td>{{patient.Age}}</td>
                 <td>{{patient.Status}}</td>
-                <td><a href="detailed_health_record/{{patient.id}}/" class="btn btn-reserve">Show Health Record</a></td>
-                <td><a href="record_treatment/{{patient.id}}/" class="btn btn-reserve">Record Treatment</a></td>
+                <td>
+                  <button type="submit" name="pat_email_health" value={{patient.Email_ID}} form="apply_comp"
+                  class="btn btn-reserve">Show Health Record</button></td>
+                <td><button type="submit" name="comp_id" value={{patient.Email_ID}} form="apply_comp"
+                  class="btn btn-reserve"
+                  >Prescribe</button> </td>
 
                 <!-- {% if book.issue_date is "" or book.issue_date is null %}
                     <td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;No</td>
