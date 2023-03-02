@@ -131,12 +131,15 @@
           <div class="col-md-6 mx-auto">
             <div class="card" style="border:5px solid white;">
               <div class="card-header text-white" style="background-color:#0E1A35">
-                <h2 style="text-center"> Schedule Appointment</h2>
+                <h2 class="text-center"> Schedule Appointment</h2>
               </div>
               <div class="card-body">
                 
                 <form action="{% url whereto %}" enctype="multipart/form-data" method="POST">
                   {% csrf_token %}
+                  <label for="SSN">Patient Name:</label>
+                  <br>
+                  <input type="text" name="my_variable" value='{{pat.First_Name}} {{pat.Last_Name}}' readonly style="width:100%; height:35px;border-radius:3px;padding:5px; background-color:#E9ECEF;border:2px solid #d2d7db;color:#5b5b5b">
                   {% for field in form.visible_fields %}
                   <div class="form-group text-start my-1">
                     {{ field.label_tag }}
@@ -146,7 +149,32 @@
                     {% endfor %}
                     {% endfor %}
                     <button type="submit" value={{pat.Email_ID}} name="checker" class="btn btn-block btn-primary my-4">Check Slots</button>
-                    </div>
+                  </div>
+                  {% if slots %}
+                  <table class="table table-hover" id="example">
+                    <thead>
+                        <tr>
+                            <th><h1>Sr. No.</h1></th>
+                            <th><h1>Slot</h1></th>
+                            <th><h1>Schedule</h1></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for slot in slots %}
+                        <tr>
+                          <form action="{% url whereto %}" enctype="multipart/form-data" method="POST" id="apply_comp">
+                            {% csrf_token %}
+                          </form>
+                            <td>{{ forloop.counter }}</td>
+                            <td>{{slot.time}}</td>
+                                <td><button type="submit" name="slot_id" value={{slot.id}} form="apply_comp"
+                                  class="btn btn-block btn-reserve ml-5">Schedule</button>
+                                </td>    
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                {% endif %}
                 </form>
               </div>
             </div>

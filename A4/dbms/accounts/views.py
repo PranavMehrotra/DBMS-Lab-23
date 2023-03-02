@@ -749,30 +749,43 @@ def scheduler(request):
         user = front_desk.objects.get(Email_ID = (request.session['user']))
         if user is not None:
             a = request.POST.get("checker")
-            # print(a)
+            date = ""
+            doc = ""
+            pat = ""
             if a is not None:
                 pat = patient.objects.get(Email_ID = a)
                 doc = request.POST.get("Physician_Email")
                 date = request.POST.get("Start")
-                # print(date)
-                print(doc)
-                # print(pat)
+                values = {
+                    'Physician_Email': doc,
+                    'Start': date,
+                }
                 date = datetime.datetime.strptime(date, '%Y-%m-%d')
                 date = make_aware(date)
-                print(date)
+                # print(date)
                 appoints = []
                 for i in range(24):
                     appoint = appointment.objects.filter(Physician_Email = doc, Start = (date+datetime.timedelta(hours=i)))
                     # print(date+datetime.timedelta(hours=i))
                     # print("hell")
-                    if appoint is not None and len(appoint) > 0:
-                        print(appoint.values())
-                        appoints.append(appoint)
-                # appoints = appointment.objects.filter(Physician_Email = doc, Start = date)
-                # if appoints is not None:
-                print(appoints)
+                    if appoint is not None and len(appoint) == 0:
+                        time = str("{0:02d}:00 - {1:02d}:00".format(i, i+1))
+                        # print(time)
+                        appoints.append({
+                            'id' : i,
+                            'time' : time
+                        })
+                print(len(appoints))
+                form = schedule_app(values)
+                return render(request,'../templates/scheduler.html',{'whereto':'scheduler', 'form':form, 'pat':pat,'user':user, 'slots':appoints})
+            a = request.POST.get("slot_id")
+            if a is not None:
+                a = int(a)
+                print(pat)
+                print(doc)
+                print(date)
+                print(a)
 
-                return render(request,'../templates/scheduler.html',{'whereto':'scheduler','pat':pat,'user':user})
         return redirect('/')
 
 
