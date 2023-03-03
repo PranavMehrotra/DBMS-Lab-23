@@ -627,9 +627,10 @@ def patient_test(request):
                 
                 if Test == '0':
                     print("hh")
-                    form= patient_test
+                    form= test_treatment
                     values = {
                          'Patient_Email':email,
+                         'Test':Test,
                          
                      }
                     test_pat = []
@@ -649,9 +650,10 @@ def patient_test(request):
             
                 elif Test == '1':
                     print("hh")
-                    form= patient_test
+                    form= test_treatment
                     values = {
                          'Patient_Email':email,
+                         'Test':Test,
                          
                      }
                     undergoes_pat = []
@@ -715,7 +717,7 @@ def patient_test(request):
                     print(pat)
                     
                     pat_record = patient.objects.get(Email_ID = pat)
-                    Treatment_taken = undergoes.objects.get(Treatment_ID = undergoes_id)
+                    Treatment_taken = undergoes.objects.get(Undergoes_id = undergoes_id)
                     Treatment_details = treatment.objects.get(Treatment_ID = int(test))
                     print(a)
                     values = {
