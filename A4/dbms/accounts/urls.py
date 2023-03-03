@@ -30,21 +30,8 @@ urlpatterns=[
      path('doctor_pat_record/', views.doctor_pat_record, name='doctor_pat_record'),
      path('record_treatment/', views.record_treatment, name='record_treatment'),
      path('upcoming_appointments/', views.show_upcoming_appts, name='show_upcoming_appts'),
-    #  path('test_result/',views.handle_test, name='handle_test'),
      path('patient_data_entry/',views.patient_data_entry, name='patient_data_entry'),
      path('patient_test/',views.patient_test, name='patient_test'),
-     
-     
      path('scheduler_test/',views.scheduler_test, name='scheduler_test'),
      path('scheduler_treatment/',views.scheduler_treatment, name='scheduler_treatment'),
-    #  path('test_result/',views.patient_data_entry, name='patient_data_entry'),
-    #  path('company_edit_details/',views.editCompProfile.as_view(), name='company_edit'),
-    #  path('alumni_edit_details/',views.editAlumProfile.as_view(), name='alumni_edit'),
-    #  path('request_feedback/',views.request_feedback, name='request_feedback'),
-    #  path('feedback/',views.feedback, name='feedback'),
-    #  path('stud_chat/',views.stud_chat, name='stud_chat'),
-    #  path('chats/',views.chats, name='chats'),
-    #  path('list_of_students/',views.list_of_students, name='list_of_students'),
-    #  path('get_student_cv/',views.get_stud_cv, name='get_stud_cv'),
-    #  path('get_cv/',views.get_cv, name='get_cv'),
 ]

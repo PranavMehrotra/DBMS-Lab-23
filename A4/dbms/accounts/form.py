@@ -425,27 +425,23 @@ class HealthRecordForm(forms.ModelForm):#form and formfields defined
     Vitals = forms.CharField(widget=forms.Textarea)
     Remarks = forms.CharField(widget=forms.Textarea)
     
-    def get_admission(self):
+    def get_admission(self,patient_email):
 
         admission_list=[]
-        doct = physician.objects.all()
-        for x in doct:
-        
-            admission_list.append((x.Email_ID,x.First_Name+" "+x.Last_Name))
+        admit = admission.objects.filter(Patient_Email = patient_email)
+        for x in admit:
+            admission_list.append((x.Admission_ID,x.PCP_Email+" "+str(x.Start)))
         return admission_list
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['Admission_ID'].choices = self.get_admission()
-        print(kwargs.get('Patient_Email'))
+        self.fields['Admission_ID'].choices = self.get_admission(self.data.get('Patient_Email'))
         print("hi")
     
     class Meta(forms.ModelForm):#Model Meta is basically used to change the behavior of your model fields like changing order options,verbose_name and lot of other options.
-        model = physician
+        model = health_record
         # Order of Fields in the Form
         fields = ['Patient_Email','First_Name','Last_Name','Admission_ID','Date', 'Vitals', 'Remarks']
    
-
-
     @transaction.atomic  #if an exception occurs changes are not saved
     def save(self):
         Patient_Email =  self.cleaned_data.get('Patient_Email')

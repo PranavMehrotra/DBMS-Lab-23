@@ -23,7 +23,7 @@ class patient_reg_help(CreateView):
     template_name = '../templates/edit_details.html'
     
     def get(self, request):
-        return render(request,'../templates/edit_details.html',{'whereto':'patient_reg','form':patient_register})#display the form in the edit_details.html
+        return render(request,'../templates/edit_details.html',{'whereto':'patient_reg','form':patient_register,'heading':"Register A Patient"})#display the form in the edit_details.html
     
     def form_valid(self,form):#form valid function
         if 'user' in self.request.session and 'type' in self.request.session:#if request is from an authenticated user 
@@ -196,7 +196,7 @@ def handle_admit(request):
                     form.fields['First_Name'].widget.attrs['readonly']  =True
                     form.fields['Last_Name'].widget.attrs['readonly']  =True
                     print(values)
-                    return render(request,'../templates/admit_room.html',{'whereto':'patient_admit','form':form, 'Email_ID':user.Email_ID})#display the form in the edit_details.html
+                    return render(request,'../templates/admit_room.html',{'whereto':'patient_admit','form':form, 'Email_ID':user.Email_ID,})#display the form in the edit_details.html
                 except patient.DoesNotExist:
                     return redirect('/admit_discharge')
             a = request.POST.get("dis_id")
@@ -627,7 +627,7 @@ def patient_data_entry(request):
                     form.fields['Last_Name'].widget.attrs['readonly']  =True
                     
                     print("success")
-                    return render(request,'../templates/edit_details.html',{'whereto':'test_health','form':form, 'Email_ID':user.Email_ID})#display the form in the edit_details.html
+                    return render(request,'../templates/edit_details.html',{'whereto':'test_health','form':form, 'Email_ID':user.Email_ID, "heading":"Enter Health Details"})#display the form in the edit_details.html
                                           
                 except patient.DoesNotExist:
                     return redirect('/patient_test')
@@ -723,7 +723,7 @@ def patient_test(request):
                     form.fields['Test_Name'].widget.attrs['readonly']  =True
                     form.fields['Date'].widget.attrs['readonly']  =True
                     print("success")
-                    return render(request,'../templates/edit_details.html',{'whereto':'test_update','form':form, 'Email_ID':user.Email_ID})#display the form in the edit_details.html
+                    return render(request,'../templates/edit_details.html',{'whereto':'test_update','form':form, 'Email_ID':user.Email_ID, 'heading':"Test Result Form"})#display the form in the edit_details.html
                 
                 elif type=="treatment":
                     type = request.POST.get("type")
@@ -737,7 +737,7 @@ def patient_test(request):
                     print(pat)
                     
                     pat_record = patient.objects.get(Email_ID = pat)
-                    Treatment_taken = undergoes.objects.get(Undergoes_id = undergoes_id)
+                    Treatment_taken = undergoes.objects.get(Undergoes_ID = undergoes_id)
                     Treatment_details = treatment.objects.get(Treatment_ID = int(test))
                     print(a)
                     values = {
@@ -756,7 +756,7 @@ def patient_test(request):
                     form.fields['Date'].widget.attrs['readonly']  =True
                     form.fields['Physician_Email'].widget.attrs['readonly']  =True
                     print("success")
-                    return render(request,'../templates/edit_details.html',{'whereto':'treatment_update','form':form, 'Email_ID':user.Email_ID})#display the form in the edit_details.html
+                    return render(request,'../templates/edit_details.html',{'whereto':'treatment_update','form':form, 'Email_ID':user.Email_ID, 'heading':"Treatment Status Form"})#display the form in the edit_details.html
                 
         
         return redirect("/patient_data_entry")

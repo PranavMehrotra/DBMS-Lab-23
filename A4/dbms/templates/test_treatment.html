@@ -199,7 +199,7 @@
             {% endfor %}
         </tbody>
     </table>
-    {% else %}
+    {% comment %} {% else %}
     <br><br>
       <h2 style="color:white; margin-top: 8vh"> Scheduled Tests </h2>
       <table class="table table-hover" id="example" >
@@ -213,7 +213,7 @@
                 
             </tr>
         </thead>
-    </table>
+    </table> {% endcomment %}
     {% endif %}
 
     {% if undergoes %}
@@ -250,7 +250,7 @@
             {% endfor %}
         </tbody>
     </table>
-    {% else %}
+    {% comment %} {% else %}
     <br><br>
       <h2 style="color:white; margin-top: 8vh;"> Scheduled Treatments </h2>
       <table class="table table-hover" id="example">
@@ -264,7 +264,7 @@
                 
             </tr>
         </thead>
-    </table>
+    </table> {% endcomment %}
     {% endif %}
      
   </section>
