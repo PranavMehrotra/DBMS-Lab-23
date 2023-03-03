@@ -141,6 +141,7 @@
                   <th><h1>Schedule Treatment</h1></th>
                   <th><h1>Completion</h1></th>
                   <th><h1>Prescription</h1></th>  
+                  <th><h1>Health Record</h1></th>  
               </tr>
           </thead>
           <tbody>
@@ -153,7 +154,6 @@
                   <td>{{patient.Email_ID}}</td>
                   <td>{{patient.First_Name}} {{patient.Last_Name}}</td>
                   <td>{{patient.Age}}</td>
-                 
                       
                       <td><button type="submit" name="schedule_test" value={{patient.Email_ID}} form="apply_comp"
                         class="btn btn-block btn-reserve ml-5"
@@ -166,6 +166,9 @@
                       <td><button type="submit" name="prescribe" value={{patient.Email_ID}} form="apply_comp"
                         class="btn btn-block btn-reserve ml-5"
                         >Prescription</button></td>
+                        <td><button type="submit" name="health" value={{patient.Email_ID}} form="apply_comp"
+                          class="btn btn-block btn-reserve ml-5"
+                          >Health Record</button></td>
                  
               </tr>
               {% endfor %}

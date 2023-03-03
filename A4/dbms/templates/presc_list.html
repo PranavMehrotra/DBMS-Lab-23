@@ -59,7 +59,7 @@
     .container {
       text-align: center;
       overflow: hidden;
-      width: 85%;
+      width: 100%;
       margin: 0 auto;
       display: table;
       padding: 3rem 0 8em 0;
@@ -85,7 +85,7 @@
     .container th {
       background-color: #1f2739;
     }
-  
+    patient_test
     .container tr:hover {
       background-color: #464a52;
       -webkit-box-shadow: 0 6px 6px -6px #0e1119;
@@ -122,34 +122,33 @@
         display: none;
       }
     }
+    h1{
+      color:white !important;
+    }
   </style>
 
   <section>
     <div class="container mt-4">
-      <h1 class="text-center page-title"><strong>Records of Patients</strong></h1>
+      <h1 class="text-center page-title" style="color:white"><strong>Records of Patients</strong></h1>
       <table class="table table-hover" id="example">
           <thead>
               <tr>
-                  <th><h1>Sr.No</h1></th>
-                  <th><h1>Patient Email</h1></th>
-                  <th><h1>Name</h1></th>
-                  <th><h1>Age</h1></th> 
-                  <th><h1>Schedule Appointment</h1></th>
+                  
+                  <th><h1>Prescription ID</h1></th>
+                  <th><h1>Physician</h1></th>
+                  <th><h1>Date</h1></th> 
+                  <th><h1>Prescription</h1></th>  
               </tr>
           </thead>
           <tbody>
-              {% for patient in pat %}
+              {% for patient in presc %}
               <tr>
-                <form action="{% url whereto %}" enctype="multipart/form-data" method="POST" id="apply_comp">
-                  {% csrf_token %}
-                </form>
-                  <td>{{ forloop.counter }}</td>
-                  <td>{{patient.Email_ID}}</td>
-                  <td>{{patient.First_Name}} {{patient.Last_Name}}</td>
-                  <td>{{patient.Age}}</td>
-                    <td><button type="submit" name="comp_id" value={{patient.Email_ID}} form="apply_comp"
-                    class="btn btn-block btn-success ml-5" style="width:10vw"
-                    >Schedule</button></td>
+                
+                  <td>{{patient.id}}</td>
+                  <td>{{patient.Physician_Name}}</td>
+                  <td>{{patient.Date}}</td>
+                  <td>{{patient.Prescription}}</td>
+                 
               </tr>
               {% endfor %}
           </tbody>
