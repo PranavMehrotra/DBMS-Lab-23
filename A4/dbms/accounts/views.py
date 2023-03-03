@@ -631,8 +631,8 @@ def patient_test(request):
                     values = {
                          'Patient_Email':email,
                          'Test':Test,
-                         
                      }
+                    form= test_treatment({"Test":Test})
                     test_pat = []
                     test = tested.objects.filter(Patient_Email = email)
                     for i in test:
@@ -650,7 +650,7 @@ def patient_test(request):
             
                 elif Test == '1':
                     print("hh")
-                    form= test_treatment
+                    form= test_treatment({"Test":Test})
                     values = {
                          'Patient_Email':email,
                          'Test':Test,
