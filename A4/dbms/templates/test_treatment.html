@@ -165,11 +165,9 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
     {% if slots %}
       <br><br>
-      <h2 style="color:white; margin-top: 8vh"> Available Tests </h2>
+      <h2 style="color:white; margin-top: 8vh"> Scheduled Tests </h2>
       <table class="table table-hover" id="example" >
         <thead>
             <tr>
@@ -195,18 +193,33 @@
                 <td>{{slot.Date}}</td>
                 <td>{{slot.Test_Name}}</td>
                 <td><button type="submit" name="slot_id" value={{slot.id}} form="apply_comp"
-                class="btn btn-block btn-reserve ml-5">Insert Record</button>
+                class="btn btn-block btn-reserve ml-5">Enter Test Result</button>
                 </td>    
             </tr>
             {% endfor %}
         </tbody>
     </table>
+    {% else %}
+    <br><br>
+      <h2 style="color:white; margin-top: 8vh"> Scheduled Tests </h2>
+      <table class="table table-hover" id="example" >
+        <thead>
+            <tr>
+                <th><h1>Sr. No.</h1></th>
+                <th><h1>Test ID</h1></th>
+                <th><h1>Date</h1></th>
+                <th><h1>Test Name</h1></th>
+                <th><h1>Test Result</h1></th>
+                
+            </tr>
+        </thead>
+    </table>
     {% endif %}
 
     {% if undergoes %}
       <br><br>
-      <h2 style="color:white; margin-top: 8vh;margin-left:40vw"> Available Tests </h2>
-      <table class="table table-hover" id="example" style="width:300px">
+      <h2 style="color:white; margin-top: 8vh;"> Scheduled Treatments </h2>
+      <table class="table table-hover" id="example">
         <thead>
             <tr>
                 <th><h1>Sr. No.</h1></th>
@@ -231,11 +244,26 @@
                 <td>{{slot.Date}}</td>
                 <td>{{slot.Treatment_Name}}</td>
                     <td><button type="submit" name="slot_id" value={{slot.id}} form="apply_comp"
-                      class="btn btn-block btn-reserve ml-5">Completed</button>
+                      class="btn btn-block btn-reserve ml-5">Enter Remarks</button>
                     </td>    
             </tr>
             {% endfor %}
         </tbody>
+    </table>
+    {% else %}
+    <br><br>
+      <h2 style="color:white; margin-top: 8vh;"> Scheduled Treatments </h2>
+      <table class="table table-hover" id="example">
+        <thead>
+            <tr>
+                <th><h1>Sr. No.</h1></th>
+                <th><h1>Treatment ID</h1></th>
+                <th><h1>Date</h1></th>
+                <th><h1>Treatment Name</h1></th>
+                <th><h1>Treatment Remarks</h1></th>
+                
+            </tr>
+        </thead>
     </table>
     {% endif %}
      
