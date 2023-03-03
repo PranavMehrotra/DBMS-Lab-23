@@ -291,7 +291,6 @@ class test_treatment(forms.ModelForm):
         return self.cleaned_data.get('Test')
 
 
-
 class patient_test_form(forms.ModelForm):
 
     First_Name = forms.CharField(max_length = 255,required=True)
@@ -331,7 +330,6 @@ class patient_treatment_form(forms.ModelForm):
     @transaction.atomic  #if an exception occurs changes are not saved
     def save(self):
         return self.cleaned_data.get('First_Name'),self.cleaned_data.get("Last_Name"),self.cleaned_data.get('Treatment_ID'),self.cleaned_data.get('Treatment_Name'),self.cleaned_data.get('Date'), self.cleaned_data.get("Physician_Email"),self.cleaned_data.get("Remarks")
-
 
 
 class schedule_test(forms.ModelForm):
@@ -415,3 +413,49 @@ class schedule_treatment(forms.ModelForm):
     @transaction.atomic  #if an exception occurs changes are not saved
     def save(self):
         return self.cleaned_data.get('Physician_Email'),self.cleaned_data.get('Treatment_ID'),self.cleaned_data.get('Start')
+    
+    
+class HealthRecordForm(forms.ModelForm):#form and formfields defined
+    
+    Patient_Email = forms.EmailField(label="Patient's Email ID")
+    First_Name =forms.CharField(required=True,label="First Name")
+    Last_Name =forms.CharField(required=True,label="Last Name")
+    Admission_ID =forms.ChoiceField(choices= [], required=True)
+    Date = forms.DateTimeField(widget=DateTimeInput(attrs={'type': 'datetime-local'}))
+    Vitals = forms.CharField(widget=forms.Textarea)
+    Remarks = forms.CharField(widget=forms.Textarea)
+    
+    def get_admission(self):
+
+        admission_list=[]
+        doct = physician.objects.all()
+        for x in doct:
+        
+            admission_list.append((x.Email_ID,x.First_Name+" "+x.Last_Name))
+        return admission_list
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['Admission_ID'].choices = self.get_admission()
+        print(kwargs.get('Patient_Email'))
+        print("hi")
+    
+    class Meta(forms.ModelForm):#Model Meta is basically used to change the behavior of your model fields like changing order options,verbose_name and lot of other options.
+        model = physician
+        # Order of Fields in the Form
+        fields = ['Patient_Email','First_Name','Last_Name','Admission_ID','Date', 'Vitals', 'Remarks']
+   
+
+
+    @transaction.atomic  #if an exception occurs changes are not saved
+    def save(self):
+        Patient_Email =  self.cleaned_data.get('Patient_Email')
+        First_Name = self.cleaned_data.get('First_Name').title()#get the data from form which would be stored in self.cleaned and store it in upper case
+        Last_Name = self.cleaned_data.get('Last_Name').title()
+        Admission_ID = self.cleaned_data.get('Admission_ID')
+        Date = self.cleaned_data.get('Date')
+        Vitals = self.cleaned_data.get('Vitals')
+        Remarks = self.cleaned_data.get('Remarks')
+       
+       
+        return Patient_Email, First_Name, Last_Name, Admission_ID, Date, Vitals, Remarks
+

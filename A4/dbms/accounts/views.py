@@ -596,7 +596,6 @@ def patient_data_entry(request):
                     user = patient.objects.get(Email_ID = a)          
                     prescri = prescribes.objects.filter(Patient_Email = a)
                    
-                    
                     prescription_list = []
                     
                     for i in prescri:
@@ -613,7 +612,28 @@ def patient_data_entry(request):
                     return render(request,'../templates/presc_list.html',{'whereto':'patient_operation', 'Email_ID':user.Email_ID, 'presc': prescription_list})#display the form in the edit_details.html
                 except patient.DoesNotExist:
                     return redirect('/patient_test')
+            a = request.POST.get("health")
+            if a is not None:            
+                try:
+                    user = patient.objects.get(Email_ID = a)   
+                    values = {
+                                'Patient_Email':user.Email_ID,
+                                'First_Name':user.First_Name,
+                                'Last_Name':user.Last_Name,
+                                }
+                    form = HealthRecordForm(values)
+                    form.fields['Patient_Email'].widget.attrs['readonly']  =True
+                    form.fields['First_Name'].widget.attrs['readonly']  =True
+                    form.fields['Last_Name'].widget.attrs['readonly']  =True
+                    
+                    print("success")
+                    return render(request,'../templates/edit_details.html',{'whereto':'test_health','form':form, 'Email_ID':user.Email_ID})#display the form in the edit_details.html
+                                          
+                except patient.DoesNotExist:
+                    return redirect('/patient_test')
     return redirect("/")
+
+
  
 def patient_test(request):
     if(request.method == 'POST'):
@@ -761,6 +781,28 @@ class test_update(CreateView):
             print("correct")
           
         return redirect('/patient_data_entry')
+
+class test_health(CreateView):
+    model = health_record
+    form_class = HealthRecordForm
+    template_name = '../templates/edit_details.html'
+    
+    def get(self, request):
+        return redirect('/patient_data_entry')
+    
+    def form_valid(self,form):#form valid function
+        if 'user' in self.request.session and 'type' in self.request.session:#if request is from an authenticated user 
+            Email_ID,First_Name,Last_Name, Admission_ID, Date, Vitals, Remarks= form.save()#get data from form
+            tested_pat = health_record(Admission_ID=Admission_ID,Date=Date,Vitals=Vitals,Remarks=Remarks)
+            tested_pat.save()
+            print("correct")
+          
+        return redirect('/patient_data_entry')
+
+
+
+
+
 
 
 class treatment_update(CreateView):
