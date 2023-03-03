@@ -22,6 +22,8 @@ urlpatterns=[
      path('',views.index, name='index'),
      path('admin_login/',views.login_admin, name='admin_login'),
      path('doctor_login/',views.login_doctor, name='doctor_login'),
+     path('test_result/',views.test_update.as_view(), name='test_update'),
+     path('treatment_result/',views.treatment_update.as_view(), name='treatment_update'),
      path('fr_login/',views.login_fr, name='fr_login'),
      path('de_login/',views.login_de, name='de_login'),
      path('logout/',views.logout_view, name='logout'),
@@ -30,7 +32,9 @@ urlpatterns=[
      path('upcoming_appointments/', views.show_upcoming_appts, name='show_upcoming_appts'),
     #  path('test_result/',views.handle_test, name='handle_test'),
      path('patient_data_entry/',views.patient_data_entry, name='patient_data_entry'),
-     path('tests/',views.test_patient.as_view(), name='patient_test'),
+     path('patient_test/',views.patient_test, name='patient_test'),
+     
+     
      path('scheduler_test/',views.scheduler_test, name='scheduler_test'),
      path('scheduler_treatment/',views.scheduler_treatment, name='scheduler_treatment'),
     #  path('test_result/',views.patient_data_entry, name='patient_data_entry'),

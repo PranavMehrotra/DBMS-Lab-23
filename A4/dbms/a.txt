@@ -12,7 +12,6 @@ import datetime
 import pytz
 from django.conf import settings
 from django.utils.timezone import make_aware
-from django.http import HttpResponse
 
 def register(request):
     return render(request, '../templates/register.html')
@@ -219,7 +218,7 @@ def handle_admit(request):
                     user.Status=2
                     pat_room = room.objects.get(Room_ID = first_admit.Room_ID)
                     pat_room.Capacity += 1
-                    first_admit.Total_Cost =  (x.hours/24) * pat_room.Cost
+                    first_admit.Total_Cost =  x.days * pat_room.Cost
                     print(first_admit.Total_Cost)
                     user.save()
                     first_admit.save()
@@ -533,6 +532,16 @@ class doctor_prescribe(CreateView):
             return redirect('/')
 
 
+# def show_health_records(request):
+
+#     if (request.method == 'GET'):
+#         if 'user' in request.session and 'type' in request.session:
+
+#             user = physician.objects.get(Email_ID = (request.session['user']))
+
+#             if user is not None:
+
+
 def show_upcoming_appts(request):
     if (request.method == 'GET'):
         if 'user' in request.session and 'type' in request.session:
@@ -565,6 +574,7 @@ def patient_data_entry(request):
             if user is not None:
                 pat = patient.objects.all()
                 return render(request,'../templates/pat_list.html',{'whereto':'patient_data_entry','pat':pat,'user':user})
+        
         return redirect('/')  
     elif request.method == 'POST':
         user = data_entry.objects.get(Email_ID = (request.session['user']))
@@ -594,23 +604,22 @@ def patient_data_entry(request):
             if a is not None:            
                 try:
                     user = patient.objects.get(Email_ID = a)          
-                    prescri = prescribes.objects.filter(Patient_Email = a)
-                   
+                    prescription = prescribes.objects.filter(Patient_Email = user.Email_ID)
                     
                     prescription_list = []
                     
-                    for i in prescri:
-                        
-                        prescription_list.append({
-                                'id' : i.Prescribe_ID,
+                    for i in prescription_list:
+                        if len(i.Prescription)==0:
+                             prescription_list.append({
+                                'id' : i.Prescribes_ID,
                                 'Date' :i.Date,
-                                'Physician_Name':physician.objects.get(Email_ID = i.Physician_Email).First_Name+" "+physician.objects.get(Email_ID = i.Physician_Email).Last_Name,
+                                'Phsyician_Name':physician.objects.get(Email_ID = i.Physician_Email).First_Name+" "+physician.objects.get(Email_ID = i.Physician_Email).Last_Name,
                                 'Prescription': i.Prescription,
                              })
                     print(prescription_list)
                     print(len(prescription_list))
                     
-                    return render(request,'../templates/presc_list.html',{'whereto':'patient_operation', 'Email_ID':user.Email_ID, 'presc': prescription_list})#display the form in the edit_details.html
+                    return render(request,'../templates/presc_list.html',{'whereto':'patient_operation','form':form, 'Email_ID':user.Email_ID})#display the form in the edit_details.html
                 except patient.DoesNotExist:
                     return redirect('/patient_test')
     return redirect("/")
@@ -882,3 +891,12 @@ def scheduler_treatment(request):
     return redirect("/")
 
 
+def patient_data_entry(request):
+    if(request.method == 'GET'):
+        if 'user' in request.session and 'type' in request.session:
+            user = data_entry.objects.get(Email_ID = (request.session['user']))
+            if user is not None:
+                pat = patient.objects.all()
+                return render(request,'../templates/pat_list.html',{'whereto':'patient_data_entry','pat':pat,'user':user})
+        
+        return redirect('/')  

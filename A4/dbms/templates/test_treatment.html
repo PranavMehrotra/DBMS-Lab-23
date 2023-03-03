@@ -138,7 +138,7 @@
           <div class="col-md-6 mx-auto">
             <div class="card" style="border:5px solid white;">
               <div class="card-header text-white" style="background-color:#0E1A35">
-                <h2 class="text-center"> Schedule Appointment</h2>
+                <h2 class="text-center">Insert Test/Treatment Result</h2>
               </div>
               <div class="card-body text-start my-1">
                 
@@ -147,6 +147,9 @@
                   <label for="SSN">Patient Name:</label>
                   <br>
                   <input type="text" name="my_variable" value='{{pat.First_Name}} {{pat.Last_Name}}' readonly style="width:100%; height:35px;border-radius:3px;padding:5px; background-color:#E9ECEF;border:2px solid #d2d7db;color:#5b5b5b">
+                  <label for="SSN">Patient Email:</label>
+                  <br>
+                  <input type="text" name="email" value={{pat.Email_ID}} readonly style="width:100%; height:35px;border-radius:3px;padding:5px; background-color:#E9ECEF;border:2px solid #d2d7db;color:#5b5b5b">
                   {% for field in form.visible_fields %}
                   <div class="form-group text-start my-1" id="check_test">
                     {{ field.label_tag }}
@@ -155,7 +158,7 @@
                     <span style="color:red">{{ error }}</span>
                     {% endfor %}
                     {% endfor %}
-                    <button type="submit" value={{pat.Email_ID}} name="checker" class="btn btn-block btn-primary my-4 text-center">Check Slots</button>
+                    <button type="submit" value={{pat.Email_ID}} name="checker" class="btn btn-block btn-primary my-4 text-center">View Tests/Treatments</button>
                   </div>
                 </form>
               </div>
@@ -164,15 +167,18 @@
         </div>
       </div>
     </div>
-      {% if slots %}
+    {% if slots %}
       <br><br>
-      <h2 style="color:white; margin-top: 8vh;"> Available Slots </h2>
-      <table class="table table-hover" id="example">
+      <h2 style="color:white; margin-top: 8vh"> Available Tests </h2>
+      <table class="table table-hover" id="example" >
         <thead>
             <tr>
                 <th><h1>Sr. No.</h1></th>
-                <th><h1>Slot</h1></th>
-                <th><h1>Schedule</h1></th>
+                <th><h1>Test ID</h1></th>
+                <th><h1>Date</h1></th>
+                <th><h1>Test Name</h1></th>
+                <th><h1>Test Result</h1></th>
+                
             </tr>
         </thead>
         <tbody>
@@ -181,16 +187,51 @@
               <form action="{% url whereto %}" enctype="multipart/form-data" method="POST" id="apply_comp">
                 {% csrf_token %}
               </form>
+                <input type="hidden" form="apply_comp" name="Test_ID" value={{slot.Test_ID}}>
                 <input type="hidden" form="apply_comp" name="Patient_Email" value={{pat.Email_ID}}>
-                <input type="hidden" form="apply_comp" name="Physician_Email" value={{vals.Physician_Email}}>
-                <input type="hidden" form="apply_comp" name="Test_ID" value={{vals.Test_ID}}>
-                <input type="hidden" form="apply_comp" name="Treatment_ID" value={{vals.Treatment_ID}}>
-                <input type="hidden" form="apply_comp" name="Start" value={{vals.Start}}>
-                <input type="hidden" form="apply_comp" name="Appointment_Fee" value={{vals.Appointment_Fee}}>
+                <input type="hidden" form="apply_comp" name="type" value="test">
                 <td>{{ forloop.counter }}</td>
-                <td>{{slot.time}}</td>
+                <td>{{slot.id}}</td>
+                <td>{{slot.Date}}</td>
+                <td>{{slot.Test_Name}}</td>
+                <td><button type="submit" name="slot_id" value={{slot.id}} form="apply_comp"
+                class="btn btn-block btn-reserve ml-5">Insert Record</button>
+                </td>    
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% endif %}
+
+    {% if undergoes %}
+      <br><br>
+      <h2 style="color:white; margin-top: 8vh;margin-left:40vw"> Available Tests </h2>
+      <table class="table table-hover" id="example" style="width:300px">
+        <thead>
+            <tr>
+                <th><h1>Sr. No.</h1></th>
+                <th><h1>Treatment ID</h1></th>
+                <th><h1>Date</h1></th>
+                <th><h1>Treatment Name</h1></th>
+                <th><h1>Treatment Remarks</h1></th>
+                
+            </tr>
+        </thead>
+        <tbody>
+            {% for slot in undergoes %}
+            <tr>
+              <form action="{% url whereto %}" enctype="multipart/form-data" method="POST" id="apply_comp">
+                {% csrf_token %}
+              </form>
+                <input type="hidden" form="apply_comp" name="Treatment_ID" value={{slot.Treatment_ID}}>
+                <input type="hidden" form="apply_comp" name="Patient_Email" value={{pat.Email_ID}}>
+                <input type="hidden" form="apply_comp" name="type" value="treatment">
+                <td>{{ forloop.counter }}</td>
+                <td>{{slot.id}}</td>
+                <td>{{slot.Date}}</td>
+                <td>{{slot.Treatment_Name}}</td>
                     <td><button type="submit" name="slot_id" value={{slot.id}} form="apply_comp"
-                      class="btn btn-block btn-reserve ml-5" onclick="confirm_it(event)">Schedule</button>
+                      class="btn btn-block btn-reserve ml-5">Completed</button>
                     </td>    
             </tr>
             {% endfor %}
