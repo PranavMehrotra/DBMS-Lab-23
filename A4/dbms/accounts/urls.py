@@ -18,7 +18,6 @@ urlpatterns=[
      path('scheduler/',views.scheduler, name='scheduler'),
      path('prescribe_medication/', views.doctor_prescribe.as_view(), name='prescribe_medic'),
      path('scheduler/',views.scheduler, name='scheduler'),
-    
      path('',views.index, name='index'),
      path('admin_login/',views.login_admin, name='admin_login'),
      path('doctor_login/',views.login_doctor, name='doctor_login'),
